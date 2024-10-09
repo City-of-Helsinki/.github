@@ -1,0 +1,238 @@
+name: ci-django-api
+on:
+  workflow_call:
+    inputs:
+      # required parameters
+      python-version:
+        description: 'Python version to use'
+        required: true
+        type: string
+      database-type:
+        description: 'Database management system, postgres or postgis'
+        required: true
+        type: string
+      # optional parameters
+      database-image:
+        description: 'Database image name'
+        required: false
+        default: 'postgis/postgis'
+        type: string
+      database-image-version:
+        description: 'Database image version'
+        required: false
+        default: '14-3.4-alpine'
+        type: string
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+env:
+  SECRET_KEY: topsecret123
+  POSTGRES_USER: db_user
+  POSTGRES_PASSWORD: db_password
+  POSTGRES_DB: test
+  DATABASE_URL: "${{ inputs.database-type }}://db_user:db_password@localhost/test"  
+  FIELD_ENCRYPTION_KEYS: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  pytest:
+    name: Testing - pytest
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ${{ inputs.database-image }}:${{ inputs.database-image-version }}
+        env:
+          # Note: not redundant, parent env is not applied to service
+          POSTGRES_USER: db_user
+          POSTGRES_PASSWORD: db_password
+          POSTGRES_DB: test
+          FIELD_ENCRYPTION_KEYS: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Required by Sonar
+          fetch-depth: 0
+      - name: Install system packages
+        run: |
+          sudo apt update
+          sudo apt install libpq-dev
+          sudo apt install gettext postgresql-client
+      - name: Install system packages for PostGIS
+        if: ${{ inputs.database-type == 'postgis' }}
+        run: |
+          sudo apt install gdal-bin
+
+      - name: Setup Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-pip-modules
+        with:
+          path: ~/.pip-cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+      - name: Apply migrations
+        run: |
+          python manage.py migrate
+      - name: Compile translations
+        run: |
+          python manage.py compilemessages
+        continue-on-error: true
+      - name: Run tests
+        uses: liskin/gh-problem-matcher-wrap@v2
+        with:
+          linters: pytest
+          run: pytest -ra -vvv --cov=. --cov-report=xml
+
+      # Without this workaround Sonar reports a warning about an incorrect source path
+      # sonarcloud-projeect.properties: sonar.python.coverage.reportPaths=coverage.xml
+      - name: Override coverage report source path for Sonar
+        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  migrations:
+    name: Testing - migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ${{ inputs.database-image }}:${{ inputs.database-image-version }}
+        env:
+          # Note: not redundant, parent env is not applied to service
+          POSTGRES_USER: db_user
+          POSTGRES_PASSWORD: db_password
+          POSTGRES_DB: test
+          FIELD_ENCRYPTION_KEYS: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Required by Sonar
+          fetch-depth: 0
+      - name: Install system packages
+        run: |
+          sudo apt update
+          sudo apt install libpq-dev
+          sudo apt install gettext postgresql-client
+      - name: Install system packages for PostGIS
+        if: ${{ inputs.database-type == 'postgis' }}
+        run: |
+          sudo apt install gdal-bin
+      - name: Setup Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-pip-modules
+        with:
+          path: ~/.pip-cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+      - name: Check migrations
+        run: |
+          python manage.py makemigrations --dry-run --check
+      - name: Apply migrations
+        run: |
+          python manage.py migrate
+
+  black:
+    name: Style - black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Run black
+        uses: psf/black@stable
+
+  flake8:
+    name: Style - flake8
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Python dependencies
+        run: pip install flake8 pep8-naming flake8-bugbear
+      - name: Run flake8
+        uses: liskin/gh-problem-matcher-wrap@v1
+        with:
+          linters: flake8
+          run: flake8
+
+  isort:
+    name: Style - isort
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Python dependencies
+        run: pip install isort
+      - name: Run isort
+        uses: liskin/gh-problem-matcher-wrap@v1
+        with:
+          linters: isort
+          run: isort -c .
+
+  commitlint:
+    name: Style - commit lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check commitlint
+        uses: wagoid/commitlint-github-action@0d749a1a91d4770e983a7b8f83d4a3f0e7e0874e  # v5.4.4
