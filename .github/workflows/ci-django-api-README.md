@@ -14,7 +14,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 - **commitlint** [config file](https://commitlint.js.org/reference/configuration.html#config-via-file) is present in the root of the project.
 - **pre-commit** is set up with a `.pre-commit-config.yaml` file in the root of the project.
 - **pytest** is used for testing, and tests can be run with `pytest` from the root of the project.
-- **SonarCloud** is configured with `GITHUB_TOKEN` and `SONAR_TOKEN` set in the repository secrets.
+- **SonarCloud** is configured with `SONAR_TOKEN` set in the repository secrets.
 - `requirements.txt` and `requirements-dev.txt` are used for Python dependencies.
 
 ## 📚 Usage Instructions
@@ -41,6 +41,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   common:
