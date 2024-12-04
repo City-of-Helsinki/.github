@@ -29,7 +29,7 @@ To use this reusable workflow, create a project-specific workflow file in your `
 ### 🔶 Optional Inputs
 
 - **`use-postgis`** (boolean): Set to `true` to enable the PostGIS extension. Default is `false`.
-- **`extra-commands`** (string): Additional setup commands or checks to execute before running tests.
+- **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
 
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
