@@ -1,5 +1,5 @@
 name: User activity audit
-
+id: user_activity_audit
 uses: peter-murray/inactive-users-action@v1
 with:
   # GitHub Access Token with permissions for accesing Repositories and Organization data.
