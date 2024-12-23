@@ -3,15 +3,15 @@ name: User activity audit
 uses: peter-murray/inactive-users-action@v1
   with:
     # GitHub Access Token with permissions for accesing Repositories and Organization data.
-    token: 
+    token: ${{ secrets.ACTIVITY_AUDIT_TOKEN }}
     # The output directory for the generated report(s).
     outputDir: # default is ${{ github.workspace }}
     # The organization that is to be processed to detect inactive users
-    organization: 
+    organization: City-of-Helsinki
     # A date time in ISO 8601 format YYYY-MM-DDTHH:mm:ss. If specified activity_days will be ignored.
     since: # optional
     # The number of days in the past to check for activity, this will be ignored if 'since' parameter is used.
-    activity_days: # default is 30
+    activity_days: 180 # default is 30
     # Maximum number of retires when using the Octokit REST API
     octokit_max_retries: # default is 15
   
@@ -19,15 +19,3 @@ uses: peter-murray/inactive-users-action@v1
 # or API.
 on:
   workflow_dispatch:
-
-jobs:
-  # This workflow contains a single job called "greet"
-  audit-users:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
