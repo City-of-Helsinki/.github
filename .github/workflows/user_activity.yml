@@ -2,6 +2,8 @@ name: User activity audit
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
+# Trigger: 202501101539
+
 on:
   - workflow_dispatch
   - push
