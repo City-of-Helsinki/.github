@@ -55,7 +55,7 @@ jobs:
       env:
         CI: true
 
-    - name: SonarCloud Scan
+    - name: SonarQube Cloud Scan
       uses: SonarSource/sonarqube-scan-action@v5.1.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
