@@ -7,12 +7,12 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 - **Commit Linting**: Enforces commit message standards using [commitlint](https://commitlint.js.org/).
 - **Build and Lint**: Build and verifies code style and formatting via yarn.
 - **Automated Testing**: Runs project tests via yarn.
-- **Code Quality Analysis**: Performs a [SonarCloud](https://sonarcloud.io/) scan.
+- **Code Quality Analysis**: Performs a [SonarQube Cloud](https://sonarcloud.io/) scan.
 
 ## 📋 Requirements for Projects Using the Workflow
 
 - **commitlint** [config file](https://commitlint.js.org/reference/configuration.html#config-via-file) is present in the root of the project.
-- **SonarCloud** is configured with `SONAR_TOKEN` set in the repository or organization secrets.
+- **SonarQube Cloud** is configured with `SONAR_TOKEN` set in the repository or organization secrets.
 
 ### 🧶 Yarn Commands
 

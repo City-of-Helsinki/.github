@@ -7,14 +7,14 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 - **Commit Linting**: Enforces commit message standards using [commitlint](https://commitlint.js.org/).
 - **Code Style Checks**: Verifies code style and formatting using [pre-commit](https://pre-commit.com/).
 - **Automated Testing**: Runs project tests using [pytest](https://docs.pytest.org/en/stable/).
-- **Code Quality Analysis**: Performs a [SonarCloud](https://sonarcloud.io/) scan.
+- **Code Quality Analysis**: Performs a [SonarQube Cloud](https://sonarcloud.io/) scan.
 
 ## 📋 Requirements for Projects Using the Workflow
 
 - **commitlint** [config file](https://commitlint.js.org/reference/configuration.html#config-via-file) is present in the root of the project.
 - **pre-commit** is set up with a `.pre-commit-config.yaml` file in the root of the project.
 - **pytest** is used for testing, and tests can be run with `pytest` from the root of the project.
-- **SonarCloud** is configured with `SONAR_TOKEN` set in the repository secrets.
+- **SonarQube Cloud** is configured with `SONAR_TOKEN` set in the repository secrets.
 - `requirements.txt` and `requirements-dev.txt` are used for Python dependencies.
 
 ## 📚 Usage Instructions
