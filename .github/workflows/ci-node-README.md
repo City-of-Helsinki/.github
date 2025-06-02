@@ -28,6 +28,10 @@ To use this reusable workflow, create a project-specific workflow file in your `
 
 - **`node-version`** (string): Specifies the Node version to use in the workflow.
 
+### 🔶 Optional Inputs
+
+- **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
+
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
 ```yaml
@@ -46,3 +50,5 @@ jobs:
     secrets: inherit
     with:
       node-version: 20
+    extra-commands: |
+      echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV

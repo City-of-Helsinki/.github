@@ -7,6 +7,10 @@ on:
         description: 'node version to use'
         required: true
         type: string
+      extra-commands:
+        description: 'Extra setup commands or checks to run before running tests'
+        required: false
+        type: string
   workflow_dispatch:
 
 jobs:
@@ -32,6 +36,9 @@ jobs:
       - name: Install dependencies
         # Prefer offline to check cache before downloading
         run: yarn --prefer-offline
+      - name: Run extra commands
+        if: ${{ inputs.extra-commands != ''}}
+        run: ${{ inputs.extra-commands }}
       - name: Lint application
         run: yarn lint
       - name: Build application
@@ -50,6 +57,9 @@ jobs:
     - name: Install dependencies
       # Prefer offline to check cache before downloading
       run: yarn --prefer-offline
+    - name: Run extra commands
+      if: ${{ inputs.extra-commands != ''}}
+      run: ${{ inputs.extra-commands }}
     - name: Run tests
       run: yarn test:coverage
       env:
