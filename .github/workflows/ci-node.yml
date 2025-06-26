@@ -68,11 +68,11 @@ jobs:
         working-directory: ${{ inputs.app-directory }}
         run: yarn build
       - name: Check browser bundle size limits
-        if: ${{ hashFiles(join(inputs.app-directory, '/.size-limit.js')) != '' }}
+        if: ${{ hashFiles(format('{0}/.size-limit.js', inputs.app-directory)) != '' }}
         working-directory: ${{ inputs.app-directory }}
         run: yarn check-size
       - name: Check ecmascript checks for build files
-        if: ${{ hashFiles(join(inputs.app-directory, '/.escheckrc')) != '' }}
+        if: ${{ hashFiles(format('{0}/.escheckrc', inputs.app-directory)) != '' }}
         working-directory: ${{ inputs.app-directory }}
         run: yarn check-dist
 
