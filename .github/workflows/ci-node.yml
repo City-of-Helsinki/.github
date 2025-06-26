@@ -43,13 +43,21 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
-      - name: Install dependencies
-        # Prefer offline to check cache before downloading
-        run: yarn --prefer-offline
+      - name: Check Yarn version and install dependencies
+        run: |
+          YARN_VERSION=$(yarn --version)
+          MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
+          if [ "$MAJOR_VERSION" -ge "4" ]; then
+            echo "Using Yarn $YARN_VERSION - using modern flags"
+            yarn install --immutable --inline-builds
+          else
+            echo "Using Yarn $YARN_VERSION - using legacy flags"
+            yarn --prefer-offline
+          fi
       - name: Run extra commands
         if: ${{ inputs.extra-commands != ''}}
         run: ${{ inputs.extra-commands }}
-      - name: Typecheck
+      - name: Typecheck application
         working-directory: ${{ inputs.app-directory }}
         if: ${{ inputs.typecheck }}
         run: yarn typecheck
@@ -79,9 +87,17 @@ jobs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
-    - name: Install dependencies
-      # Prefer offline to check cache before downloading
-      run: yarn --prefer-offline
+    - name: Check Yarn version and install dependencies
+      run: |
+        YARN_VERSION=$(yarn --version)
+        MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
+        if [ "$MAJOR_VERSION" -ge "4" ]; then
+          echo "Using Yarn $YARN_VERSION - using modern flags"
+          yarn install --immutable --inline-builds
+        else
+          echo "Using Yarn $YARN_VERSION - using legacy flags"
+          yarn --prefer-offline
+        fi
     - name: Run extra commands
       if: ${{ inputs.extra-commands != ''}}
       run: ${{ inputs.extra-commands }}
