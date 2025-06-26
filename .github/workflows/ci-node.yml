@@ -58,8 +58,8 @@ jobs:
         if: ${{ inputs.extra-commands != ''}}
         run: ${{ inputs.extra-commands }}
       - name: Typecheck application
-        working-directory: ${{ inputs.app-directory }}
         if: ${{ inputs.typecheck }}
+        working-directory: ${{ inputs.app-directory }}
         run: yarn typecheck
       - name: Lint application
         working-directory: ${{ inputs.app-directory }}
@@ -68,12 +68,12 @@ jobs:
         working-directory: ${{ inputs.app-directory }}
         run: yarn build
       - name: Check browser bundle size limits
+        if: ${{ hashFiles(join(inputs.app-directory, '/.size-limit.js')) != '' }}
         working-directory: ${{ inputs.app-directory }}
-        if: ${{ hashFiles('.size-limit.js') != '' }}
         run: yarn check-size
       - name: Check ecmascript checks for build files
+        if: ${{ hashFiles(join(inputs.app-directory, '/.escheckrc')) != '' }}
         working-directory: ${{ inputs.app-directory }}
-        if: ${{ hashFiles('.escheckrc') != '' }}
         run: yarn check-dist
 
 
