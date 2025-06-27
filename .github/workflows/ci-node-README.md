@@ -20,6 +20,12 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 - **lint** run [eslint](https://eslint.org/) or another lint tool.
 - **test:coverage** runs project tests with coverage.
 
+### 🪡 Optional Yarn Commands
+
+- **typecheck** run tsc check
+- **check-size** run browser bundle size limits check. The command is run if the `.size-limit.js` file is found in the app directory.
+- **check-dist**: run ecmascript checks for build files. The command is run if the `.escheckrc` file is found in the app directory.
+
 ## 📚 Usage Instructions
 
 To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/ci-node.yml@main` and `secrets` is set to `inherit`. Also provide the following inputs as needed:
@@ -31,6 +37,8 @@ To use this reusable workflow, create a project-specific workflow file in your `
 ### 🔶 Optional Inputs
 
 - **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
+- **`app-directory`** (string): The subdirectory of the application where the tests are run. Default is `.`.
+- **`typecheck`** (boolean): Run typecheck command. Default is `false`.
 
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
