@@ -103,9 +103,7 @@ jobs:
       run: ${{ inputs.extra-commands }}
     - name: Run tests
       working-directory: ${{ inputs.app-directory }}
-      run: |
-        printenv | sort
-        yarn test:coverage
+      run: yarn test:coverage
       env:
         CI: true
 
