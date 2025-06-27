@@ -11,6 +11,16 @@ on:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
         type: string
+      app-directory:
+        description: 'Application subdirectory to run the tests in'
+        required: false
+        type: string
+        default: '.'
+      typecheck:
+        description: 'Set to true to run type checking'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 jobs:
@@ -33,16 +43,39 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
-      - name: Install dependencies
-        # Prefer offline to check cache before downloading
-        run: yarn --prefer-offline
+      - name: Check Yarn version and install dependencies
+        run: |
+          YARN_VERSION=$(yarn --version)
+          MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
+          if [ "$MAJOR_VERSION" -ge "4" ]; then
+            echo "Using Yarn $YARN_VERSION - using modern flags"
+            yarn install --immutable --inline-builds
+          else
+            echo "Using Yarn $YARN_VERSION - using legacy flags"
+            yarn --prefer-offline
+          fi
       - name: Run extra commands
         if: ${{ inputs.extra-commands != ''}}
         run: ${{ inputs.extra-commands }}
+      - name: Typecheck application
+        if: ${{ inputs.typecheck }}
+        working-directory: ${{ inputs.app-directory }}
+        run: yarn typecheck
       - name: Lint application
+        working-directory: ${{ inputs.app-directory }}
         run: yarn lint
       - name: Build application
+        working-directory: ${{ inputs.app-directory }}
         run: yarn build
+      - name: Check browser bundle size limits
+        if: ${{ hashFiles(format('{0}/.size-limit.js', inputs.app-directory)) != '' }}
+        working-directory: ${{ inputs.app-directory }}
+        run: yarn check-size
+      - name: Check ecmascript checks for build files
+        if: ${{ hashFiles(format('{0}/.escheckrc', inputs.app-directory)) != '' }}
+        working-directory: ${{ inputs.app-directory }}
+        run: yarn check-dist
+
 
   tests:
     name: Test
@@ -54,19 +87,30 @@ jobs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
-    - name: Install dependencies
-      # Prefer offline to check cache before downloading
-      run: yarn --prefer-offline
+    - name: Check Yarn version and install dependencies
+      run: |
+        YARN_VERSION=$(yarn --version)
+        MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
+        if [ "$MAJOR_VERSION" -ge "4" ]; then
+          echo "Using Yarn $YARN_VERSION - using modern flags"
+          yarn install --immutable --inline-builds
+        else
+          echo "Using Yarn $YARN_VERSION - using legacy flags"
+          yarn --prefer-offline
+        fi
     - name: Run extra commands
       if: ${{ inputs.extra-commands != ''}}
       run: ${{ inputs.extra-commands }}
     - name: Run tests
+      working-directory: ${{ inputs.app-directory }}
       run: yarn test:coverage
       env:
         CI: true
 
     - name: SonarQube Cloud Scan
       uses: SonarSource/sonarqube-scan-action@v5.1.0
+      with:
+        projectBaseDir: ${{ inputs.app-directory }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
