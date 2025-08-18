@@ -85,17 +85,17 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Validate provided PostgreSQL major version
+        working-directory: ${{ github.workspace }}
         run: |
           supported_versions=("13" "14" "17")
           if [[ ! " ${supported_versions[*]} " == *" ${{ inputs.postgres-major-version }} "* ]]; then
             echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13, 14 and 17."
             exit 1
           fi
-        working-directory: .
       - name: Set up locale
+        working-directory: ${{ github.workspace }}
         run: |
-            sudo locale-gen fi_FI.UTF-8
-        working-directory: .
+          sudo locale-gen fi_FI.UTF-8
       - name: Checkout
         uses: actions/checkout@v4
         with:
