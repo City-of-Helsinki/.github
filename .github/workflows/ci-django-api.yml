@@ -21,7 +21,6 @@ on:
         description: 'Set version to use the Elasticsearch service'
         required: false
         type: string
-        default: ''
       extra-commands:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
