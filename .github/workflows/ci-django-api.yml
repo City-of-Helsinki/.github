@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: false
+      elasticsearch-version:
+        description: 'Set version to use the Elasticsearch service'
+        required: false
+        type: string
+        default: ''
       extra-commands:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
@@ -83,6 +88,18 @@ jobs:
           - 5432:5432
         # Needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      elasticsearch:
+        if: ${{ inputs.elasticsearch-version != '' }}
+        image: docker.elastic.co/elasticsearch/elasticsearch:${{ inputs.elasticsearch-version }}
+        env:
+          discovery.type: single-node
+        options: >-
+          --health-cmd "curl http://localhost:9200/_cluster/health"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10        
+
     steps:
       - name: Validate provided PostgreSQL major version
         working-directory: ${{ github.workspace }}
