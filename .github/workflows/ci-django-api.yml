@@ -88,9 +88,11 @@ jobs:
             echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13 and 14."
             exit 1
           fi
+        working-directory: .
       - name: Set up locale
         run: |
             sudo locale-gen fi_FI.UTF-8
+        working-directory: .
       - name: Checkout
         uses: actions/checkout@v4
         with:
