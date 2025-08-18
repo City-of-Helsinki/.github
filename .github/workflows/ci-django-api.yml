@@ -21,6 +21,11 @@ on:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
         type: string
+      working-directory:
+        description: 'Working directory for the tests job.'
+        required: false
+        type: string
+        default: '.'
   workflow_dispatch:
 
 env:
@@ -55,6 +60,10 @@ jobs:
   tests:
     name: Run tests and SonarQube Cloud scan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     services:
       postgres:
         # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
