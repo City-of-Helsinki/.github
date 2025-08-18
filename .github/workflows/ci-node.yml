@@ -119,6 +119,7 @@ jobs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
+        cache-dependency-path: ${{ inputs.working-directory }}
     - name: Check Yarn version and install dependencies
       run: |
         YARN_VERSION=$(yarn --version)
