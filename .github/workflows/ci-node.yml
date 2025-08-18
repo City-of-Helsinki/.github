@@ -31,6 +31,11 @@ on:
         required: false
         type: boolean
         default: false
+      working-directory:
+        description: 'Working directory for the build and tests jobs.'
+        required: false
+        type: string
+        default: '.'
   workflow_dispatch:
 
 jobs:
@@ -46,6 +51,9 @@ jobs:
   build:
     name: Lint and build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ inputs.node-version }}
@@ -100,6 +108,9 @@ jobs:
   tests:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ inputs.node-version }}
