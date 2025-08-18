@@ -89,18 +89,15 @@ jobs:
         # Needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-      elasticsearch:
-        if: ${{ inputs.elasticsearch-version != '' }}
-        image: docker.elastic.co/elasticsearch/elasticsearch:${{ inputs.elasticsearch-version }}
-        env:
-          discovery.type: single-node
-        options: >-
-          --health-cmd "curl http://localhost:9200/_cluster/health"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10        
-
     steps:
+      - name: Start Elasticsearch (if needed)
+        if: ${{ inputs.elasticsearch-version != '' }}
+        run: |
+          docker run -d \
+            --name elasticsearch \
+            -e "discovery.type=single-node" \
+            -p 9200:9200 \
+            docker.elastic.co/elasticsearch/elasticsearch:${{ inputs.elasticsearch-version }}
       - name: Validate provided PostgreSQL major version
         working-directory: ${{ github.workspace }}
         run: |
