@@ -96,6 +96,7 @@ jobs:
           docker run -d \
             --name elasticsearch \
             -e "discovery.type=single-node" \
+            -e "xpack.security.enabled=false" \
             -p 9200:9200 \
             docker.elastic.co/elasticsearch/elasticsearch:${{ inputs.elasticsearch-version }}
       - name: Validate provided PostgreSQL major version
