@@ -91,6 +91,7 @@ jobs:
     steps:
       - name: Start Elasticsearch (if needed)
         if: ${{ inputs.elasticsearch-version != '' }}
+        working-directory: ${{ github.workspace }}
         run: |
           docker run -d \
             --name elasticsearch \
