@@ -35,7 +35,7 @@ on:
         description: 'Working directory for the yarn installation, build and tests jobs.'
         required: false
         type: string
-        default: ''
+        default: '.'
   workflow_dispatch:
 
 jobs:
@@ -61,7 +61,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
-          cache-dependency-path: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory != '.' && inputs.working-directory }}
       - name: Check Yarn version and install dependencies
         run: |
           YARN_VERSION=$(yarn --version)
