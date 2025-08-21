@@ -21,6 +21,11 @@ on:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
         type: string
+      working-directory:
+        description: 'Working directory for the tests job.'
+        required: false
+        type: string
+        default: '.'
   workflow_dispatch:
 
 env:
@@ -55,6 +60,10 @@ jobs:
   tests:
     name: Run tests and SonarQube Cloud scan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     services:
       postgres:
         # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
@@ -72,16 +81,19 @@ jobs:
           - 5432:5432
         # Needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Validate provided PostgreSQL major version
+        working-directory: ${{ github.workspace }}
         run: |
           if [[ "${{ inputs.postgres-major-version }}" != "13" && "${{ inputs.postgres-major-version }}" != "14" ]]; then
             echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13 and 14."
             exit 1
           fi
       - name: Set up locale
+        working-directory: ${{ github.workspace }}
         run: |
-            sudo locale-gen fi_FI.UTF-8
+          sudo locale-gen fi_FI.UTF-8
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -134,6 +146,8 @@ jobs:
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
       - name: SonarQube Cloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.1.0
+        with:
+          projectBaseDir: ${{ inputs.working-directory }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
