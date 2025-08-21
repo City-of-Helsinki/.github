@@ -143,7 +143,6 @@ jobs:
           python manage.py makemigrations --dry-run --check
       - name: Run tests
         run: |
-          cat .env
           pytest -ra -vvv --cov=. --cov-report=xml
       # Without this workaround, SonarQube Cloud reports a warning about an incorrect source path
       - name: Override coverage report source path for SonarQube Cloud

@@ -37,8 +37,9 @@ To use this reusable workflow, create a project-specific workflow file in your `
 ### 🔶 Optional Inputs
 
 - **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
-- **`app-directory`** (string): The subdirectory of the application where the tests are run. Default is `.`.
 - **`typecheck`** (boolean): Run typecheck command. Default is `false`.
+- **`working-directory`** (string): Repository working directory where to run yarn installation and the tests. Default is `.` (the repository root).
+- **`app-directory`** (string): The subdirectory of the application where the tests are run. Default is **`working-directory`**.
 
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 

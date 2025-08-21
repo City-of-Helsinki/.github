@@ -11,11 +11,6 @@ on:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
         type: string
-      app-directory:
-        description: 'Application subdirectory to run the tests in'
-        required: false
-        type: string
-        default: '.'
       typecheck:
         description: 'Set to true to run type checking'
         required: false
@@ -31,6 +26,11 @@ on:
         required: false
         type: boolean
         default: false
+      app-directory:
+        description: 'Application subdirectory to run the tests in'
+        required: false
+        type: string
+        default: '.'
       working-directory:
         description: 'Working directory for the build and tests jobs.'
         required: false
@@ -104,7 +104,6 @@ jobs:
         if: ${{ hashFiles(format('{0}/.escheckrc', inputs.app-directory)) != '' }}
         working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
         run: yarn check-dist
-
 
   tests:
     name: Test
