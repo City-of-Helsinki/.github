@@ -113,12 +113,19 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ inputs.node-version }}
+    - name: Use Node.js ${{ inputs.node-version }} with dependency path
+      if: ${{ inputs.working-directory != '.' }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
-        cache-dependency-path: ${{ inputs.working-directory == '.' && '' || inputs.working-directory }}
+        cache-dependency-path: ${{ inputs.working-directory }}
+    - name: Use Node.js ${{ inputs.node-version }} without dependency path
+      if: ${{ inputs.working-directory == '.' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'yarn'
     - name: Check Yarn version and install dependencies
       run: |
         YARN_VERSION=$(yarn --version)
