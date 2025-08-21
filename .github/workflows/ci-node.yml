@@ -41,6 +41,9 @@ jobs:
   build:
     name: Lint and build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ inputs.node-version }}
@@ -48,9 +51,8 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
-          cache-dependency-path: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory == '.' && '' || inputs.working-directory }}
       - name: Check Yarn version and install dependencies
-        working-directory: ${{ inputs.working-directory }}
         run: |
           YARN_VERSION=$(yarn --version)
           MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
@@ -86,6 +88,9 @@ jobs:
   tests:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ inputs.node-version }}
@@ -93,9 +98,8 @@ jobs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
-        cache-dependency-path: ${{ inputs.working-directory }}
+        cache-dependency-path: ${{ inputs.working-directory == '.' && '' || inputs.working-directory }}
     - name: Check Yarn version and install dependencies
-      working-directory: ${{ inputs.working-directory }}
       run: |
         YARN_VERSION=$(yarn --version)
         MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
