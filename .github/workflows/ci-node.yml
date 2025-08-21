@@ -32,7 +32,7 @@ on:
         type: string
         default: '.'
       working-directory:
-        description: 'Working directory for the build and tests jobs.'
+        description: 'Working directory for the yarn installation, build and tests jobs.'
         required: false
         type: string
         default: '.'
