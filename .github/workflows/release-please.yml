@@ -1,6 +1,9 @@
 name: release-please
 on:
   workflow_call:  
+    secrets:
+      GITHUB_TOKEN:
+        required: true
   workflow_dispatch:
 
 permissions:
