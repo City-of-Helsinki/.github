@@ -1,9 +1,6 @@
 name: release-please
 on:
   workflow_call:  
-    secrets:
-      githubtoken:
-        required: true
   workflow_dispatch:
 
 permissions:
@@ -16,5 +13,3 @@ jobs:
     steps:
       # hash is version v4.3.0
       - uses: googleapis/release-please-action@c2a5a2bd6a758a0937f1ddb1e8950609867ed15c
-        with:
-          token: ${{ secrets.githubtoken }}
