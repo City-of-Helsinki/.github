@@ -108,7 +108,7 @@ jobs:
         CI: true
 
     - name: SonarQube Cloud Scan
-      uses: SonarSource/sonarqube-scan-action@v5.1.0
+      uses: SonarSource/sonarqube-scan-action@v5
       with:
         projectBaseDir: ${{ inputs.app-directory }}
       env:
