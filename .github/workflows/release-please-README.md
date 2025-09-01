@@ -39,4 +39,3 @@ permissions:
 jobs:
   common:
     uses: City-of-Helsinki/.github/.github/workflows/release-please.yml@main
-    secrets: inherit
