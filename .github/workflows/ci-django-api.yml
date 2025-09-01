@@ -59,9 +59,11 @@ jobs:
       postgres:
         # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
         image: ${{ inputs.use-postgis &&
-                    (inputs.postgres-major-version == '14' && 'postgis/postgis:14-3.2-alpine' ||
+                    (inputs.postgres-major-version == '17' && 'postgis/postgis:17-3.5-alpine' ||
+                     inputs.postgres-major-version == '14' && 'postgis/postgis:14-3.2-alpine' ||
                      inputs.postgres-major-version == '13' && 'postgis/postgis:13-3.2-alpine') ||
-                    (inputs.postgres-major-version == '14' && 'postgres:14-alpine' ||
+                    (inputs.postgres-major-version == '17' && 'postgres:17-alpine' ||
+                     inputs.postgres-major-version == '14' && 'postgres:14-alpine' ||
                      inputs.postgres-major-version == '13' && 'postgres:13-alpine') ||
                      'postgres:alpine' }}  # This fallback is used only so that we don't error out before the validation step
         env:
@@ -75,8 +77,9 @@ jobs:
     steps:
       - name: Validate provided PostgreSQL major version
         run: |
-          if [[ "${{ inputs.postgres-major-version }}" != "13" && "${{ inputs.postgres-major-version }}" != "14" ]]; then
-            echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13 and 14."
+          supported_versions=("13" "14" "17")
+          if [[ ! " ${supported_versions[*]} " == *" ${{ inputs.postgres-major-version }} "* ]]; then
+            echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13, 14 and 17."
             exit 1
           fi
       - name: Set up locale

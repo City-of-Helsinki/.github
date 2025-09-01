@@ -24,7 +24,7 @@ To use this reusable workflow, create a project-specific workflow file in your `
 ### 🛑 Required Inputs
 
 - **`python-version`** (string): Specifies the Python version to use in the workflow.
-- **`postgres-major-version`** (number): Specifies the PostgreSQL major version (allowed values: `13`, `14`).
+- **`postgres-major-version`** (number): Specifies the PostgreSQL major version (allowed values: `13`, `14`, `17`).
 
 ### 🔶 Optional Inputs
 
@@ -48,8 +48,8 @@ jobs:
     uses: City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main
     secrets: inherit
     with:
-      python-version: 3.9
-      postgres-major-version: 14
+      python-version: 3.12
+      postgres-major-version: 17
       use-postgis: true
       extra-commands: |
         echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV
