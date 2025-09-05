@@ -5,7 +5,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup 
 ## 🌟 Key Features
 
 - **Release PR**: Create PR for release.
-- **Changelog**: Craete changelog from git commit.
+- **Changelog**: Create changelog from git commits.
 - **Version number**: Increase software version number. 
 
 ## 📋 Requirements for Projects Using the Workflow
