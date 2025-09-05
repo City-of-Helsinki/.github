@@ -16,7 +16,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup 
 
 ## 📚 Usage Instructions
 
-To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/release-pleasee.yml@main` and `secrets` is set to `inherit`. 
+To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. 
 
 City of Helsinki release please general [instructions](https://helsinkisolutionoffice.atlassian.net/wiki/spaces/DD/pages/8278966368/Releases+with+release-please).
 
