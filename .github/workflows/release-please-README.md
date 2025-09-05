@@ -29,6 +29,7 @@ on:
   push:
     branches:
       - main
+  # Run daily to keep the release PR date current
   schedule:
     - cron: '1 0 * * *'
 
