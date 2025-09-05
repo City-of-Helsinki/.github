@@ -13,7 +13,6 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup 
 - **Commits** must be written in the form of [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) 
 - **release-please-config.json** configuration file for release-please.
 - **.release-please-manifest.json** file to maintain version information.
-- **token** is using `GITHUB_TOKEN` set in the repository secrets.
 
 ## 📚 Usage Instructions
 
