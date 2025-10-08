@@ -1,0 +1,71 @@
+name: npm publish
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '22'
+      package-manager:
+        description: 'Package manager to use (npm, yarn, pnpm)'
+        required: false
+        type: string
+        default: 'yarn'
+      install-command:
+        description: 'Command to install dependencies'
+        required: false
+        type: string
+        default: 'yarn --frozen-lockfile'
+      test-command:
+        description: 'Command to run tests'
+        required: false
+        type: string
+        default: 'yarn test'
+      build-command:
+        description: 'Command to build the package'
+        required: false
+        type: string
+        default: 'yarn build'
+      skip-tests:
+        description: 'Skip running tests'
+        required: false
+        type: boolean
+        default: false
+      registry-url:
+        description: 'npm registry URL'
+        required: false
+        type: string
+        default: 'https://registry.npmjs.org/'
+      access:
+        description: 'Package access level (public, restricted)'
+        required: false
+        type: string
+        default: 'public'
+
+jobs:
+  publish-npm-stable:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          registry-url: ${{ inputs.registry-url }}
+      - name: Upgrade npm to latest
+        run: npm install -g npm@latest
+      - name: Install dependencies
+        run: ${{ inputs.install-command }}
+      - name: Run tests
+        if: ${{ !inputs.skip-tests }}
+        run: ${{ inputs.test-command }}
+      - name: Build package
+        run: ${{ inputs.build-command }}
+      - name: Publish package
+        run: npm publish --access ${{ inputs.access }}
+        env:
+          NPM_CONFIG_PROVENANCE: true
