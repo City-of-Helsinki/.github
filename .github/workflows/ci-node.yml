@@ -67,6 +67,15 @@ jobs:
       - name: Build application
         working-directory: ${{ inputs.app-directory }}
         run: yarn build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ inputs.node-version }}
+          path: |
+            ${{ inputs.app-directory }}/dist
+            ${{ inputs.app-directory }}/build
+            ${{ inputs.app-directory }}/lib
+          retention-days: 1
       - name: Check browser bundle size limits
         if: ${{ hashFiles(format('{0}/.size-limit.js', inputs.app-directory)) != '' }}
         working-directory: ${{ inputs.app-directory }}

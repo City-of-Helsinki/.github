@@ -7,12 +7,11 @@ on:
         description: 'Node.js version to use'
         required: false
         type: string
-        default: '22'
-      package-manager:
-        description: 'Package manager to use (npm, yarn, pnpm)'
+      use-ci-build:
+        description: 'Use build artifacts from CI workflow (requires ci-node workflow to run first)'
         required: false
-        type: string
-        default: 'yarn'
+        default: false
+        type: boolean
       install-command:
         description: 'Command to install dependencies'
         required: false
@@ -58,12 +57,20 @@ jobs:
           registry-url: ${{ inputs.registry-url }}
       - name: Upgrade npm to latest
         run: npm install -g npm@latest
+      - name: Download build artifacts
+        if: ${{ inputs.use-ci-build }}
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ inputs.node-version }}
+          path: ./
       - name: Install dependencies
+        if: ${{ !inputs.use-ci-build }}
         run: ${{ inputs.install-command }}
       - name: Run tests
-        if: ${{ !inputs.skip-tests }}
+        if: ${{ !inputs.skip-tests || !inputs.use-ci-build }}
         run: ${{ inputs.test-command }}
       - name: Build package
+        if: ${{ !inputs.use-ci-build }}
         run: ${{ inputs.build-command }}
       - name: Publish package
         run: npm publish --access ${{ inputs.access }}

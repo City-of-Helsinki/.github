@@ -36,16 +36,20 @@ The workflow uses configurable commands for different package managers:
 
 To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/ci-npm-publish.yml@main`. The workflow is typically triggered by release tags.
 
-### 🔶 Optional Inputs
+### Inputs
 
-- **`node-version`** (string): Node.js version to use. Default: `'22'`.
-- **`package-manager`** (string): Package manager to use (npm, yarn, pnpm). Default: `'yarn'`.
-- **`install-command`** (string): Command to install dependencies. Default: `'yarn --frozen-lockfile'`.
-- **`test-command`** (string): Command to run tests. Default: `'yarn test'`.
-- **`build-command`** (string): Command to build the package. Default: `'yarn build'`.
-- **`skip-tests`** (boolean): Skip running tests. Default: `false`.
-- **`registry-url`** (string): npm registry URL. Default: `'https://registry.npmjs.org/'`.
-- **`access`** (string): Package access level (public, restricted). Default: `'public'`.
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `node-version` | Node.js version to use | No | `20` |
+| `package-manager` | Package manager to use (`npm`, `yarn`, `pnpm`) | No | `npm` |
+| `registry-url` | npm registry URL | No | `https://registry.npmjs.org` |
+| `app-dir` | Directory containing package.json | No | `.` |
+| `install-command` | Command to install dependencies | No | Auto-detected |
+| `test-command` | Command to run tests | No | Auto-detected |
+| `build-command` | Command to build the package | No | Auto-detected |
+| `publish-command` | Command to publish the package | No | Auto-detected |
+| `skip-tests` | Skip running tests | No | `false` |
+| `use-ci-build` | Use build artifacts from CI workflow | No | `false` |
 
 ### 📄 Example usage (`<own project>/.github/workflows/npm-publish.yml`)
 
@@ -61,7 +65,7 @@ jobs:
   publish:
     uses: City-of-Helsinki/.github/.github/workflows/ci-npm-publish.yml@main
     with:
-      node-version: '20'
+      node-version: '22'
       package-manager: 'npm'
       install-command: 'npm ci'
       test-command: 'npm run test:ci'
@@ -113,24 +117,41 @@ jobs:
 - **Provenance**: Automatically generates and publishes provenance attestations.
 - **OIDC Authentication**: Uses OpenID Connect for secure authentication with npm.
 
-## 🛠️ Setup Requirements
+## Prerequisites
 
-1. **Configure npm trusted publisher** for your package:
-   - Go to your package on npmjs.com
-   - Add trusted publisher with:
-     - Organization: `City-of-Helsinki`
-     - Repository: `<your-repo-name>`
-     - Workflow: `<your-workflow-filename>.yml`
-     - Environment: (leave blank)
-
-2. **Ensure package.json repository field** matches your GitHub repository:
+1. **Repository Configuration**: Your package.json must include a proper `repository` field for npm provenance to work:
    ```json
    {
      "repository": {
-       "type": "git", 
-       "url": "https://github.com/City-of-Helsinki/<your-repo-name>"
+       "type": "git",
+       "url": "git+https://github.com/owner/repo.git"
      }
    }
    ```
 
-3. **Set up proper tagging** in your release process (e.g., using release-please or manual tagging).
+2. **npm Trusted Publishers**: Configure trusted publishers in your npm package settings:
+   - Go to your package on npmjs.com
+   - Navigate to Settings > Publishing access
+   - Add GitHub Actions as trusted publisher with your repository details
+
+## Build Artifact Integration
+
+This workflow can reuse build artifacts from the `ci-node.yml` workflow to avoid rebuilding:
+
+1. Set `use-ci-build: true` when calling this workflow
+2. Ensure the CI workflow runs first using `needs` dependency
+3. Set `skip-tests: true` since tests already ran in CI
+
+**Example Combined Workflow:**
+```yaml
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-node.yml
+    
+  publish:
+    needs: ci
+    uses: ./.github/workflows/ci-npm-publish.yml
+    with:
+      use-ci-build: true
+      skip-tests: true
+```
