@@ -68,6 +68,6 @@ jobs:
         if: ${{ !inputs.use-ci-build }}
         run: ${{ inputs.build-command }}
       - name: Publish package
-        run: npm publish --access ${{ inputs.access }}
+        run: npm publish --ignore-scripts --access ${{ inputs.access }}
         env:
           NPM_CONFIG_PROVENANCE: true
