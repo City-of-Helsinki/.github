@@ -1,0 +1,6 @@
+group:
+  repos: |
+    City-of-Helsinki/kerrokantasi
+  files: 
+    - source: LICENSE
+      dest: LICENSE
