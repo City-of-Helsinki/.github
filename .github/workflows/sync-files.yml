@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - sync_files_RATY-224
   workflow_dispatch:
 jobs:
   sync:
