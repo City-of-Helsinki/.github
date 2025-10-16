@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - sync_files_RATY-224
   workflow_dispatch:
 jobs:
   sync:
@@ -10,7 +11,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         id: app-token
         with:
           app-id: ${{ vars.ORGANIZATIONTOKEN_APP_ID }}
@@ -18,7 +19,7 @@ jobs:
           # Set the owner, so the token can be used in all repositories
           owner: ${{ github.repository_owner }}
       - name: Run GitHub File Sync
-        uses: BetaHuhn/repo-file-sync-action@v1
+        uses: BetaHuhn/repo-file-sync-action@8b92be3375cf1d1b0cd579af488a9255572e4619 # v1.21.1
         with:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token}}
           GIT_EMAIL: sync.bot@example.com
