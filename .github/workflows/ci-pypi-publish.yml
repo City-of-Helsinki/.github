@@ -7,7 +7,7 @@ on:
         description: 'Python version to use'
         required: false
         type: string
-        default: '3.15'
+        default: '3.x'
       test-command:
         description: 'Command to run tests'
         required: false
