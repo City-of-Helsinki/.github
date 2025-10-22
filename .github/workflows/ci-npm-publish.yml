@@ -1,0 +1,74 @@
+name: npm publish
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+      use-ci-build:
+        description: 'Use build artifacts from CI workflow (requires ci-node workflow to run first)'
+        required: false
+        default: false
+        type: boolean
+      install-command:
+        description: 'Command to install dependencies'
+        required: false
+        type: string
+        default: 'yarn --frozen-lockfile'
+      test-command:
+        description: 'Command to run tests'
+        required: false
+        type: string
+        default: 'yarn test'
+      build-command:
+        description: 'Command to build the package'
+        required: false
+        type: string
+        default: 'yarn build'
+      registry-url:
+        description: 'npm registry URL'
+        required: false
+        type: string
+        default: 'https://registry.npmjs.org/'
+      access:
+        description: 'Package access level (public, restricted)'
+        required: false
+        type: string
+        default: 'public'
+
+jobs:
+  publish-npm-stable:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          registry-url: ${{ inputs.registry-url }}
+      - name: Upgrade npm to latest
+        run: npm install -g npm@latest
+      - name: Download build artifacts
+        if: ${{ inputs.use-ci-build }}
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ inputs.node-version }}
+          path: ./
+      - name: Install dependencies
+        if: ${{ !inputs.use-ci-build }}
+        run: ${{ inputs.install-command }}
+      - name: Run tests
+        if: ${{ !inputs.use-ci-build }}
+        run: ${{ inputs.test-command }}
+      - name: Build package
+        if: ${{ !inputs.use-ci-build }}
+        run: ${{ inputs.build-command }}
+      - name: Publish package
+        run: npm publish --ignore-scripts --access ${{ inputs.access }}
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          

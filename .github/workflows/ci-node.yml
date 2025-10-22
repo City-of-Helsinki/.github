@@ -21,6 +21,16 @@ on:
         required: false
         type: boolean
         default: false
+      upload_artifacts:
+        description: 'Set to true to upload build artifacts'
+        required: false
+        type: boolean
+        default: false
+      skip_sonar:
+        description: 'Set to true to skip SonarQube checks'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 jobs:
@@ -67,6 +77,16 @@ jobs:
       - name: Build application
         working-directory: ${{ inputs.app-directory }}
         run: yarn build
+      - name: Upload build
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ inputs.node-version }}
+          path: |
+            ${{ inputs.app-directory }}/dist
+            ${{ inputs.app-directory }}/build
+            ${{ inputs.app-directory }}/lib
+          retention-days: 1
       - name: Check browser bundle size limits
         if: ${{ hashFiles(format('{0}/.size-limit.js', inputs.app-directory)) != '' }}
         working-directory: ${{ inputs.app-directory }}
@@ -108,6 +128,7 @@ jobs:
         CI: true
 
     - name: SonarQube Cloud Scan
+      if: ${{ !inputs.skip_sonar }}
       uses: SonarSource/sonarqube-scan-action@v6
       with:
         projectBaseDir: ${{ inputs.app-directory }}
