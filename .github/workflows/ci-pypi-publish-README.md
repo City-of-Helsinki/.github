@@ -13,7 +13,7 @@ This reusable workflow is part of the City of Helsinki's GitHub Actions setup, s
 
 ## 📋 Requirements for Projects Using the Workflow
 
-- **pyproject.toml** or **setup.py** for package configuration.
+- **pyproject.toml**, **setup.py** or **setup.cfg** for package configuration.
 - **Source code** in a standard Python package structure.
 - **Test suite** (pytest recommended) if running tests.
 - **PyPI account** and either API token or trusted publisher setup.
@@ -22,20 +22,14 @@ This reusable workflow is part of the City of Helsinki's GitHub Actions setup, s
 
 **Default test command:** `python -m pytest`
 
-**Common alternatives:**
-- **pytest**: Simple pytest execution
-- **python -m pytest --cov**: Run with coverage
-- **tox**: Run tests with tox
-- **python -m unittest discover**: Use unittest discovery
-
 ### 📦 Build Requirements
 
 **Default build command:** `python -m build .`
 
 The workflow uses Python's standard `build` module which supports:
+- **Both formats** (recommended)
 - **Wheel packages** (.whl files)
 - **Source distributions** (sdist)
-- **Both formats** (recommended)
 
 ## 📚 Usage Instructions
 
@@ -54,6 +48,24 @@ To use this reusable workflow, create a project-specific workflow file in your `
 
 - **`PYPI_API_TOKEN`**: PyPI API token (not required if using trusted publisher).
 
+### 📄 Example usage with Trusted Publisher
+
+```yaml
+name: PyPI Publish (Trusted Publisher)
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    uses: City-of-Helsinki/.github/.github/workflows/ci-pypi-publish.yml@main
+    with:
+      python-version: '3.12'
+      use-trusted-publisher: true
+      requirements-file: 'requirements-dev.txt'
+```
+
 ### 📄 Example usage with API Token (`<own project>/.github/workflows/pypi-publish.yml`)
 
 ```yaml
@@ -70,26 +82,8 @@ jobs:
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
     with:
-      python-version: '3.11'
+      python-version: '3.12'
       test-command: 'pytest --cov'
-```
-
-### 📄 Example usage with Trusted Publisher
-
-```yaml
-name: PyPI Publish (Trusted Publisher)
-
-on:
-  release:
-    types: [published]
-
-jobs:
-  publish:
-    uses: City-of-Helsinki/.github/.github/workflows/ci-pypi-publish.yml@main
-    with:
-      python-version: '3.10'
-      use-trusted-publisher: true
-      requirements-file: 'requirements-dev.txt'
 ```
 
 ### 📄 Advanced example with custom setup
@@ -133,6 +127,23 @@ jobs:
 
 ## 🔒 Authentication Methods
 
+### 🛡️ Trusted Publisher Method (Recommended)
+
+1. **Configure on PyPI**:
+   - Go to your project on PyPI
+   - Add trusted publisher with:
+     - Publisher: GitHub
+     - Owner: `City-of-Helsinki`
+     - Repository: `<your-repo-name>`
+     - Workflow: `<your-workflow-filename>.yml`
+     - Environment: (optional)
+
+2. **Use in workflow**:
+   ```yaml
+   with:
+     use-trusted-publisher: true
+   ```
+
 ### 🔑 API Token Method (Traditional)
 
 1. **Generate API token** on PyPI:
@@ -151,51 +162,7 @@ jobs:
      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
    ```
 
-### 🛡️ Trusted Publisher Method (Recommended)
-
-1. **Configure on PyPI**:
-   - Go to your project on PyPI
-   - Add trusted publisher with:
-     - Publisher: GitHub
-     - Owner: `City-of-Helsinki`
-     - Repository: `<your-repo-name>`
-     - Workflow: `<your-workflow-filename>.yml`
-     - Environment: (optional)
-
-2. **Use in workflow**:
-   ```yaml
-   with:
-     use-trusted-publisher: true
-   ```
-
-## 🛠️ Project Structure Requirements
-
-### Minimal setup with pyproject.toml:
-```
-my-package/
-├── pyproject.toml
-├── src/
-│   └── my_package/
-│       ├── __init__.py
-│       └── main.py
-└── tests/
-    └── test_main.py
-```
-
-### With requirements:
-```
-my-package/
-├── pyproject.toml
-├── requirements.txt      # Runtime dependencies
-├── requirements-dev.txt  # Development dependencies
-├── src/my_package/
-└── tests/
-```
-
 ## 🚀 Supported Build Systems
 
-- **setuptools** (traditional setup.py or pyproject.toml)
-- **poetry** (pyproject.toml with poetry-core)
-- **flit** (pyproject.toml with flit-core)
-- **hatchling** (pyproject.toml with hatchling)
-- **pdm** (pyproject.toml with pdm-pep517)
+#TODO
+ - To be defined and tested
