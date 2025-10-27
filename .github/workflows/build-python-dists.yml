@@ -1,0 +1,70 @@
+name: Build Python distribution packages
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: "Artifact name"
+        required: false
+        type: string
+        default: "python-package-dist"
+      artifact-path:
+        description: "A file, directory or a wildcard that describes the artifact to upload"
+        required: false
+        type: string
+        default: "dist/"
+      build-command:
+        description: "Command(s) to build the package"
+        required: false
+        type: string
+        default: "python3 -m build"
+      dependencies-command:
+        description: "Command(s) used for installing the build dependencies"
+        required: false
+        type: string
+        default: "python3 -m pip install --user build"
+      python-version:
+        description: "Python version to use for build"
+        required: false
+        type: string
+        default: "3.x"
+      ref:
+        description: "The branch, tag or SHA to publish."
+        required: false
+        type: string
+    outputs:
+      artifact_name:
+        description: "Name of the uploaded artifact. Empty if no artifact was created."
+        value: ${{ jobs.build.outputs.artifact_name }}
+
+jobs:
+  build:
+    name: Build distribution packages
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_name: ${{ steps.set-artifact-name.outputs.artifact_name }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false  # don"t persist git credentials on disk
+          ref: ${{ inputs.ref == null && null || inputs.ref }}
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install build dependencies
+        run: ${{ inputs.dependencies-command }}
+      - name: Build the distributions
+        run: ${{ inputs.build-command }}
+      - name: Store the distributions
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}
+      - name: Set artifact name on success
+        id: set-artifact-name
+        if: ${{ success() }}
+        run: echo "artifact_name=${{ inputs.artifact-name }}" >> $GITHUB_OUTPUT
