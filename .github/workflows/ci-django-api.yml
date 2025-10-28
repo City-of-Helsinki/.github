@@ -142,4 +142,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: |
-            -Dsonar.githubactions.s7637.trustedPrefixes=./,actions/,github/,City-of-Helsinki/.github/
+            -Dsonar.githubactions.s7637.trustedPrefixes=./,actions/,github/,city-of-helsinki/
