@@ -1,0 +1,26 @@
+name: Sync Files
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.ORGANIZATIONTOKEN_APP_ID }}
+          private-key: ${{ secrets.ORGANIZATIONTOKEN_PRIVATE_KEY }}
+          # Set the owner, so the token can be used in all repositories
+          owner: ${{ github.repository_owner }}
+      - name: Run GitHub File Sync
+        uses: BetaHuhn/repo-file-sync-action@8b92be3375cf1d1b0cd579af488a9255572e4619 # v1.21.1
+        with:
+          GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token}}
+          GIT_EMAIL: sync.bot@example.com
+          GIT_USERNAME: github-sync[bot]
+          COMMIT_PREFIX: 'chore: '

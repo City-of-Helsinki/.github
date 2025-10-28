@@ -1,0 +1,6 @@
+group:
+  repos: |
+    City-of-Helsinki/kerrokantasi
+  files: 
+    - source: sync/.github/dependabot.yml
+      dest: .github/dependabot.yml
