@@ -1,0 +1,62 @@
+name: Build Python distribution packages
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: 'Artifact name'
+        required: false
+        type: string
+        default: 'package-distributions'
+      artifact-path:
+        description: 'A file, directory or a wildcard that describes what to upload'
+        required: false
+        type: string
+        default: 'dist/'
+      build-command:
+        description: 'Command(s) to build the package'
+        required: false
+        type: string
+        default: 'python -m build'
+      dependencies-command:
+        description: 'Command(s) used for installing the build dependencies'
+        required: false
+        type: string
+        default: 'python -m pip install --user build'
+      python-version:
+        description: 'Python version to use for build'
+        required: false
+        type: string
+        default: '3.x'
+    outputs:
+      artifact-name:
+        description: 'Artifact name'
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+  build:
+    name: Build distribution packages
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.set-artifact-name.outputs.artifact-name }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false  # don't persist git credentials on disk
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install build dependencies
+        run: ${{ inputs.dependencies-command }}
+      - name: Build the distributions
+        run: ${{ inputs.build-command }}
+      - name: Set artifact name
+        id: set-artifact-name
+        run: echo "artifact-name=${{ inputs.artifact-name }}" >> $GITHUB_OUTPUT
+      - name: Store the distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}
