@@ -1,6 +1,23 @@
 group:
-  repos: |
-    City-of-Helsinki/kerrokantasi
-  files: 
-    - source: sync/.github/dependabot.yml
-      dest: .github/dependabot.yml
+  # pip
+  - repos: |
+      City-of-Helsinki/django-helsinki-notification
+      City-of-Helsinki/django-helusers
+      City-of-Helsinki/django-munigeo
+      City-of-Helsinki/django-orghierarchy
+      City-of-Helsinki/django-auditlog-extra
+      City-of-Helsinki/django-ilmoitin
+      City-of-Helsinki/django-logger-extra
+      City-of-Helsinki/example-backend-profile
+      City-of-Helsinki/kerrokantasi
+    files: 
+      - source: sync/.github/dependabot-pip.yml
+        dest: .github/dependabot.yml
+  # npm
+  - repos: |
+      City-of-Helsinki/example-ui-profile
+      City-of-Helsinki/hds-analytics
+      City-of-Helsinki/react-helsinki-notification-manager
+    files:
+      - source: sync/.github/dependabot-npm.yml
+        dest: .github/dependabot.yml
