@@ -14,6 +14,19 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup 
 - **release-please-config.json** configuration file for release-please.
 - **.release-please-manifest.json** file to maintain version information.
 
+## Inputs
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `include-component-in-tag` | If true, add prefix to tags and branches, allowing multiple libraries to be released from the same repository | No | `true` |
+
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| `release_created` | Whether a release was created or not |
+
+
 ## 📚 Usage Instructions
 
 To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. 
