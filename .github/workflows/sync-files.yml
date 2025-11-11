@@ -23,4 +23,4 @@ jobs:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token}}
           GIT_EMAIL: sync.bot@example.com
           GIT_USERNAME: github-sync[bot]
-          COMMIT_PREFIX: 'chore: '
+          COMMIT_PREFIX: "chore: file sync update\n\nSigned-off-by: sol-office-file-synchronization[bot]\n\n"
