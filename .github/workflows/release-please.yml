@@ -1,6 +1,16 @@
 name: release-please
 on:
-  workflow_call:  
+  workflow_call:
+    inputs:
+      include-component-in-tag:
+        description: "If true, add prefix to tags and branches, allowing multiple libraries to be released from the same repository"
+        required: false
+        default: true
+        type: boolean
+    outputs:
+        release_created:
+          description: "Whether a release was created or not"
+          value: ${{ jobs.release-please.outputs.release_created }}
   workflow_dispatch:
 
 permissions:
@@ -10,5 +20,8 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release-please.outputs.release_created }}
     steps:
       - uses: googleapis/release-please-action@c2a5a2bd6a758a0937f1ddb1e8950609867ed15c # v4.3.0
+        id: release-please
