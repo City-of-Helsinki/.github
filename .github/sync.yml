@@ -12,7 +12,7 @@ group:
       City-of-Helsinki/helsinki-profile-gdpr-api
       City-of-Helsinki/kerrokantasi
     files: 
-      - source: sync/.github/.commitlintrc.mjs
+      - source: sync/.commitlintrc.mjs
         dest: .commitlintrc.mjs
       - source: sync/.github/dependabot-pip.yml
         dest: .github/dependabot.yml
@@ -23,7 +23,7 @@ group:
       City-of-Helsinki/hds-analytics
       City-of-Helsinki/react-helsinki-notification-manager
     files:
-      - source: sync/.github/.commitlintrc.mjs
+      - source: sync/.commitlintrc.mjs
         dest: .commitlintrc.mjs
       - source: sync/.github/dependabot-npm.yml
         dest: .github/dependabot.yml
