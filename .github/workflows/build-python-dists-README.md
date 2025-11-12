@@ -68,10 +68,6 @@ name: Create release & publish to PyPI
 # If ran manually, e.g. with ref set to "refs/tags/v1.2.3", set the run name to "Publish refs/tags/v1.2.3".
 run-name: ${{ inputs.ref && format('Publish {0}', inputs.ref) || null }}
 
-permissions:
-  contents: write
-  pull-requests: write
-
 on:
   push:
     branches:
