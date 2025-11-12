@@ -1,5 +1,5 @@
 group:
-  # pip
+  # backend, pip
   - repos: |
       City-of-Helsinki/django-helsinki-notification
       City-of-Helsinki/django-helusers
@@ -16,8 +16,10 @@ group:
         dest: .commitlintrc.mjs
       - source: sync/.github/dependabot-pip.yml
         dest: .github/dependabot.yml
+      - source: sync/CODEOWNERS-ratkaisutoimiston-backend
+        dest: CODEOWNERS
 
-  # npm
+  # frontend, npm
   - repos: |
       City-of-Helsinki/example-ui-profile
       City-of-Helsinki/hds-analytics
@@ -27,3 +29,5 @@ group:
         dest: .commitlintrc.mjs
       - source: sync/.github/dependabot-npm.yml
         dest: .github/dependabot.yml
+      - source: sync/CODEOWNERS-ratkaisutoimiston-frontend
+        dest: CODEOWNERS
