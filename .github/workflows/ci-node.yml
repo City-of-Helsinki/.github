@@ -31,6 +31,11 @@ on:
         required: false
         type: boolean
         default: false
+      working-directory:
+        description: 'Working directory for the yarn installation, build and tests jobs.'
+        required: false
+        type: string
+        default: '.'
   workflow_dispatch:
 
 jobs:
@@ -46,9 +51,20 @@ jobs:
   build:
     name: Lint and build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.node-version }} with dependency path
+        if: ${{ inputs.working-directory != '.' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: ${{ inputs.working-directory }}/package.json
+      - name: Use Node.js ${{ inputs.node-version }} without dependency path
+        if: ${{ inputs.working-directory == '.' }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
@@ -69,13 +85,13 @@ jobs:
         run: ${{ inputs.extra-commands }}
       - name: Typecheck application
         if: ${{ inputs.typecheck }}
-        working-directory: ${{ inputs.app-directory }}
+        working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
         run: yarn typecheck
       - name: Lint application
-        working-directory: ${{ inputs.app-directory }}
+        working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
         run: yarn lint
       - name: Build application
-        working-directory: ${{ inputs.app-directory }}
+        working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
         run: yarn build
       - name: Upload build
         if: ${{ inputs.upload_artifacts }}
@@ -89,20 +105,30 @@ jobs:
           retention-days: 1
       - name: Check browser bundle size limits
         if: ${{ hashFiles(format('{0}/.size-limit.js', inputs.app-directory)) != '' }}
-        working-directory: ${{ inputs.app-directory }}
+        working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
         run: yarn check-size
       - name: Check ecmascript checks for build files
         if: ${{ hashFiles(format('{0}/.escheckrc', inputs.app-directory)) != '' }}
-        working-directory: ${{ inputs.app-directory }}
+        working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
         run: yarn check-dist
-
 
   tests:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ inputs.node-version }}
+    - name: Use Node.js ${{ inputs.node-version }} with dependency path
+      if: ${{ inputs.working-directory != '.' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'yarn'
+        cache-dependency-path: ${{ inputs.working-directory }}/package.json
+    - name: Use Node.js ${{ inputs.node-version }} without dependency path
+      if: ${{ inputs.working-directory == '.' }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
@@ -122,7 +148,7 @@ jobs:
       if: ${{ inputs.extra-commands != ''}}
       run: ${{ inputs.extra-commands }}
     - name: Run tests
-      working-directory: ${{ inputs.app-directory }}
+      working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
       run: yarn test:coverage
       env:
         CI: true
@@ -131,7 +157,7 @@ jobs:
       if: ${{ !inputs.skip_sonar }}
       uses: SonarSource/sonarqube-scan-action@v6
       with:
-        projectBaseDir: ${{ inputs.app-directory }}
+        projectBaseDir: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
