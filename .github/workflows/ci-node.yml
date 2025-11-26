@@ -11,6 +11,11 @@ on:
         description: 'Extra setup commands or checks to run before running tests'
         required: false
         type: string
+      app-directory:
+        description: 'Application subdirectory to run the tests in'
+        required: false
+        type: string
+        default: '.'
       typecheck:
         description: 'Set to true to run type checking'
         required: false
@@ -26,11 +31,6 @@ on:
         required: false
         type: boolean
         default: false
-      app-directory:
-        description: 'Application subdirectory to run the tests in'
-        required: false
-        type: string
-        default: '.'
       working-directory:
         description: 'Working directory for the yarn installation, build and tests jobs.'
         required: false
