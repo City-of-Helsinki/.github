@@ -43,13 +43,12 @@ To use this reusable workflow, create a project-specific workflow file in your `
 | `node-version` | Node.js version to use | No | `20` |
 | `package-manager` | Package manager to use (`npm`, `yarn`, `pnpm`) | No | `npm` |
 | `registry-url` | npm registry URL | No | `https://registry.npmjs.org` |
-| `app-dir` | Directory containing package.json | No | `.` |
 | `install-command` | Command to install dependencies | No | Auto-detected |
 | `test-command` | Command to run tests | No | Auto-detected |
 | `build-command` | Command to build the package | No | Auto-detected |
-| `publish-command` | Command to publish the package | No | Auto-detected |
-| `skip-tests` | Skip running tests | No | `false` |
 | `use-ci-build` | Use build artifacts from CI workflow | No | `false` |
+| `access` | Package access level | No | `public` |
+| `canary` | Create canary publish | No | `false` |
 
 ### 📄 Example usage (`<own project>/.github/workflows/npm-publish.yml`)
 
