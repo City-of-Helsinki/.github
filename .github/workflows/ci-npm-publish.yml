@@ -37,6 +37,11 @@ on:
         required: false
         type: string
         default: 'public'
+      canary:
+        description: 'Make publish as a canary release'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   publish-npm-stable:
@@ -68,7 +73,15 @@ jobs:
         if: ${{ !inputs.use-ci-build }}
         run: ${{ inputs.build-command }}
       - name: Publish package
+        if: ${{ !inputs.canary }}
         run: npm publish --ignore-scripts --access ${{ inputs.access }}
         env:
           NPM_CONFIG_PROVENANCE: true
-          
+      - name: Publish canary package
+        if: ${{ inputs.canary }}
+        run: |
+          short_sha=$(git rev-parse --short HEAD)
+          sed -i '' -E "s/\"version\": \"([^\"]+)\"/\"version\": \"\1-canary-${short_sha}\"/" package.json
+          npm publish --ignore-scripts --access ${{ inputs.access }} --tag canary
+        env:
+          NPM_CONFIG_PROVENANCE: true
