@@ -81,7 +81,7 @@ jobs:
         if: ${{ inputs.canary }}
         run: |
           short_sha=$(git rev-parse --short HEAD)
-          sed -i '' -E "s/\"version\": \"([^\"]+)\"/\"version\": \"\1-canary-${short_sha}\"/" package.json
+          sed -i -E "s/\"version\": \"([^\"]+)\"/\"version\": \"\1-canary-${short_sha}\"/" package.json
           npm publish --ignore-scripts --access ${{ inputs.access }} --tag canary
         env:
           NPM_CONFIG_PROVENANCE: true
