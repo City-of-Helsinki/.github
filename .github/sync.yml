@@ -11,7 +11,7 @@ group:
       City-of-Helsinki/example-backend-profile
       City-of-Helsinki/helsinki-profile-gdpr-api
       City-of-Helsinki/kerrokantasi
-    files: 
+    files:
       - source: sync/.commitlintrc.mjs
         dest: .commitlintrc.mjs
       - source: sync/.github/dependabot-pip.yml
@@ -31,3 +31,10 @@ group:
         dest: .github/dependabot.yml
       - source: sync/CODEOWNERS-ratkaisutoimiston-frontend
         dest: CODEOWNERS
+
+  # sync helper prompts
+  - repos: |
+      City-of-Helsinki/kerrokantasi
+    files:
+      - source: sync/.github/prompts/
+        dest: .github/prompts/
