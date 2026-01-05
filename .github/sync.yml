@@ -35,6 +35,7 @@ group:
   # sync helper prompts
   - repos: |
       City-of-Helsinki/kerrokantasi
+      City-of-Helsinki/linkedevents
     files:
       - source: sync/.github/prompts/
         dest: .github/prompts/
