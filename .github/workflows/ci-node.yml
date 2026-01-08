@@ -41,6 +41,11 @@ on:
         required: false
         type: string
         default: '.'
+      ignore-scripts:
+        description: 'Set to true to skip lifecycle scripts during install (--ignore-scripts)'
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
 
 jobs:
@@ -79,12 +84,13 @@ jobs:
         run: |
           YARN_VERSION=$(yarn --version)
           MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
+          IGNORE_SCRIPTS="${{ inputs.ignore-scripts == true && '--ignore-scripts' || '' }}"
           if [ "$MAJOR_VERSION" -ge "4" ]; then
             echo "Using Yarn $YARN_VERSION - using modern flags"
-            yarn install --immutable --inline-builds
+            yarn install --immutable --inline-builds $IGNORE_SCRIPTS
           else
             echo "Using Yarn $YARN_VERSION - using legacy flags"
-            yarn --prefer-offline
+            yarn install --frozen-lockfile --prefer-offline $IGNORE_SCRIPTS
           fi
       - name: Run extra commands
         if: ${{ inputs.extra-commands != ''}}
@@ -143,12 +149,13 @@ jobs:
       run: |
         YARN_VERSION=$(yarn --version)
         MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
+        IGNORE_SCRIPTS="${{ inputs.ignore-scripts == true && '--ignore-scripts' || '' }}"
         if [ "$MAJOR_VERSION" -ge "4" ]; then
           echo "Using Yarn $YARN_VERSION - using modern flags"
-          yarn install --immutable --inline-builds
+          yarn install --immutable --inline-builds $IGNORE_SCRIPTS
         else
           echo "Using Yarn $YARN_VERSION - using legacy flags"
-          yarn --prefer-offline
+          yarn install --frozen-lockfile --prefer-offline $IGNORE_SCRIPTS
         fi
     - name: Run extra commands
       if: ${{ inputs.extra-commands != ''}}
