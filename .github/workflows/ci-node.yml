@@ -84,12 +84,15 @@ jobs:
         run: |
           YARN_VERSION=$(yarn --version)
           MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
-          IGNORE_SCRIPTS="${{ inputs.ignore-scripts == true && '--ignore-scripts' || '' }}"
           if [ "$MAJOR_VERSION" -ge "4" ]; then
             echo "Using Yarn $YARN_VERSION - using modern flags"
-            yarn install --immutable --inline-builds $IGNORE_SCRIPTS
+            if [ "${{ inputs.ignore-scripts }}" = "true" ]; then
+              yarn config set enableScripts false
+            fi
+            yarn install --immutable --inline-builds
           else
             echo "Using Yarn $YARN_VERSION - using legacy flags"
+            IGNORE_SCRIPTS="${{ inputs.ignore-scripts == true && '--ignore-scripts' || '' }}"
             yarn install --frozen-lockfile --prefer-offline $IGNORE_SCRIPTS
           fi
       - name: Run extra commands
@@ -149,12 +152,15 @@ jobs:
       run: |
         YARN_VERSION=$(yarn --version)
         MAJOR_VERSION=$(echo $YARN_VERSION | cut -d. -f1)
-        IGNORE_SCRIPTS="${{ inputs.ignore-scripts == true && '--ignore-scripts' || '' }}"
         if [ "$MAJOR_VERSION" -ge "4" ]; then
           echo "Using Yarn $YARN_VERSION - using modern flags"
-          yarn install --immutable --inline-builds $IGNORE_SCRIPTS
+          if [ "${{ inputs.ignore-scripts }}" = "true" ]; then
+            yarn config set enableScripts false
+          fi
+          yarn install --immutable --inline-builds
         else
           echo "Using Yarn $YARN_VERSION - using legacy flags"
+          IGNORE_SCRIPTS="${{ inputs.ignore-scripts == true && '--ignore-scripts' || '' }}"
           yarn install --frozen-lockfile --prefer-offline $IGNORE_SCRIPTS
         fi
     - name: Run extra commands
