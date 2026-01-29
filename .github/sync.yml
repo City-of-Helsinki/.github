@@ -24,6 +24,7 @@ group:
       City-of-Helsinki/example-ui-profile
       City-of-Helsinki/hds-analytics
       City-of-Helsinki/react-helsinki-notification-manager
+      City-of-Helsinki/events-helsinki-monorepo
     files:
       - source: sync/.commitlintrc.mjs
         dest: .commitlintrc.mjs
