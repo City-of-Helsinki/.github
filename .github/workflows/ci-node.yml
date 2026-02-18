@@ -31,6 +31,11 @@ on:
         required: false
         type: boolean
         default: false
+      use_sonar_default_config:
+        description: 'Set to false to use a custom sonar-project.properties file in the workspace root'
+        required: false
+        type: boolean
+        default: true
       skip-build:
         description: 'Set to true to skip the build phase'
         required: false
@@ -172,12 +177,20 @@ jobs:
       env:
         CI: true
 
+    - name: SonarQube download config
+      if: ${{ !inputs.skip_sonar && inputs.use_sonar_default_config }}
+      run: |
+        mkdir -p sonar-config
+        curl -o sonar-config/sonar-project.properties \
+          https://raw.githubusercontent.com/City-of-Helsinki/example-ui-profile/refs/heads/main/.github/sonar-configs/sonar-project.properties
+
     - name: SonarQube Cloud Scan
       if: ${{ !inputs.skip_sonar }}
       uses: SonarSource/sonarqube-scan-action@v6
       with:
         projectBaseDir: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
+        args: >
+          -Dproject.settings=${{ inputs.use_sonar_default_config && 'sonar-config/sonar-project.properties' || 'sonar-project.properties' }} -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        

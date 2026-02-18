@@ -26,6 +26,11 @@ on:
         required: false
         type: string
         default: '.'
+      use_sonar_default_config:
+        description: 'Set to false to use a custom sonar-project.properties file in the workspace root'
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
 
 env:
@@ -169,10 +174,20 @@ jobs:
     # Without this workaround, SonarQube Cloud reports a warning about an incorrect source path
     - name: Override coverage report source path for SonarQube Cloud
       run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
+
+    - name: SonarQube download config
+      if: ${{ inputs.use_sonar_default_config }}
+      run: |
+        mkdir -p sonar-config
+        curl -o sonar-config/sonar-project.properties \
+          https://raw.githubusercontent.com/City-of-Helsinki/example-ui-profile/refs/heads/main/.github/sonar-configs/backend/sonar-project.properties
+
     - name: SonarQube Cloud Scan
       uses: SonarSource/sonarqube-scan-action@v6
       with:
         projectBaseDir: ${{ inputs.working-directory }}
+        args: >
+          -Dproject.settings=${{ inputs.use_sonar_default_config && 'sonar-config/sonar-project.properties' || 'sonar-project.properties' }} -Dsonar.python.version=${{ inputs.python-version }} -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
