@@ -171,6 +171,9 @@ jobs:
       run: yarn test:coverage
       env:
         CI: true
+    # Coverage path logic (keep in sync with sonarcloud job's cache/restore step):
+    # Resolves the effective directory (app-directory if set, else working-directory),
+    # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
     - name: Store coverage report
       uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
       with:
@@ -189,6 +192,9 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    # Coverage path logic (keep in sync with tests job's cache/save step):
+    # Resolves the effective directory (app-directory if set, else working-directory),
+    # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
     - name: Restore coverage report
       uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
       with:
