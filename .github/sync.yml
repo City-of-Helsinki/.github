@@ -1,15 +1,26 @@
 group:
-  # backend, pip
+  # python libraries
   - repos: |
       City-of-Helsinki/django-helsinki-notification
+      City-of-Helsinki/django-helsinki-suomifi-messages
+      City-of-Helsinki/django-resilient-logger
+      City-of-Helsinki/django-helsinki-health-endpoints
       City-of-Helsinki/django-helusers
       City-of-Helsinki/django-munigeo
       City-of-Helsinki/django-orghierarchy
       City-of-Helsinki/django-auditlog-extra
       City-of-Helsinki/django-ilmoitin
       City-of-Helsinki/django-logger-extra
-      City-of-Helsinki/example-backend-profile
       City-of-Helsinki/helsinki-profile-gdpr-api
+    files: 
+      - source: sync/.commitlintrc.mjs
+        dest: .commitlintrc.mjs
+      - source: sync/CODEOWNERS-ratkaisutoimiston-backend
+        dest: CODEOWNERS
+
+  # backend, pip
+  - repos: |
+      City-of-Helsinki/example-backend-profile
       City-of-Helsinki/kerrokantasi
     files: 
       - source: sync/.commitlintrc.mjs
