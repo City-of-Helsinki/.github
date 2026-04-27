@@ -46,6 +46,13 @@ on:
         required: false
         type: boolean
         default: true
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarQube Cloud token'
+        required: true
+      GITHUB_TOKEN:
+        description: 'GitHub token for SonarQube Cloud'
+        required: true
   workflow_dispatch:
 
 jobs:
@@ -59,10 +66,6 @@ jobs:
         uses: wagoid/commitlint-github-action@3d28780bbf0365e29b144e272b2121204d5be5f3  # v6.1.2
 
   build:
-    name: Lint and build
-    if: ${{ !inputs.skip-build }}
-    runs-on: ubuntu-latest
-    defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:

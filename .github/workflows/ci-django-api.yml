@@ -26,6 +26,13 @@ on:
         required: false
         type: string
         default: '.'
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarQube Cloud token'
+        required: true
+      GITHUB_TOKEN:
+        description: 'GitHub token for SonarQube Cloud'
+        required: true
   workflow_dispatch:
 
 env:
