@@ -172,9 +172,6 @@ jobs:
         path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
         fail-on-cache-miss: true
-    # Without this workaround, SonarQube Cloud reports a warning about an incorrect source path
-    - name: Override coverage report source path for SonarQube Cloud
-      run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
     - name: SonarQube Cloud Scan
       uses: SonarSource/sonarqube-scan-action@v6
       with:
