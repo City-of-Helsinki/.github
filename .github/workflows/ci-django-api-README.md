@@ -19,7 +19,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 
 ## 📚 Usage Instructions
 
-To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main` and `secrets` is set to `inherit`. Also provide the following inputs as needed:
+To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main`. Also provide the following inputs and secrets as needed:
 
 ### 🛑 Required Inputs
 
@@ -31,6 +31,10 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`use-postgis`** (boolean): Set to `true` to enable the PostGIS extension. Default is `false`.
 - **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
 - **`working-directory`** (string): Repository subdirectory where to run tests. Default is repository root.
+
+### 🔑 Secrets
+
+- **`SONAR_TOKEN`**: Token for SonarQube Cloud Scan. Required.
 
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
@@ -47,7 +51,8 @@ on:
 jobs:
   common:
     uses: City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
       python-version: 3.12
       postgres-major-version: 17
