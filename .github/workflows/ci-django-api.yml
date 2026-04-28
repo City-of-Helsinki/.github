@@ -26,6 +26,10 @@ on:
         required: false
         type: string
         default: '.'
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarQube Cloud token'
+        required: true
   workflow_dispatch:
 
 env:
