@@ -28,7 +28,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 
 ## 📚 Usage Instructions
 
-To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/ci-node.yml@main` and `secrets` is set to `inherit`. Also provide the following inputs as needed:
+To use this reusable workflow, create a project-specific workflow file in your `.github/workflows` directory. Ensure the `uses` value is set to `City-of-Helsinki/.github/.github/workflows/ci-node.yml@main`. Also provide the following inputs and secrets as needed:
 
 ### 🛑 Required Inputs
 
@@ -40,6 +40,10 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`typecheck`** (boolean): Run typecheck command. Default is `false`.
 - **`working-directory`** (string): Repository working directory where to run yarn installation and the tests. Default is `.` (the repository root).
 - **`app-directory`** (string): The subdirectory of the application where the tests are run. Default is **`working-directory`**.
+
+### 🔑 Secrets
+
+- **`SONAR_TOKEN`**: Token for SonarQube Cloud Scan. Required.
 
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
@@ -56,8 +60,9 @@ on:
 jobs:
   common:
     uses: City-of-Helsinki/.github/.github/workflows/ci-node.yml@main
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
       node-version: 20
-    extra-commands: |
-      echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV
+      extra-commands: |
+        echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV

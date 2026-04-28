@@ -42,6 +42,10 @@ on:
         required: false
         type: boolean
         default: false
+    secrets:
+      NODE_AUTH_TOKEN:
+        description: 'npm authentication token'
+        required: true
 
 jobs:
   publish-npm-stable:
@@ -77,6 +81,7 @@ jobs:
         run: npm publish --ignore-scripts --access ${{ inputs.access }}
         env:
           NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Publish canary package
         if: ${{ inputs.canary }}
         run: |
@@ -85,3 +90,4 @@ jobs:
           npm publish --ignore-scripts --access ${{ inputs.access }} --tag canary
         env:
           NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
