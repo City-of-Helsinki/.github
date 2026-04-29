@@ -177,5 +177,4 @@ jobs:
       with:
         projectBaseDir: ${{ inputs.working-directory }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
