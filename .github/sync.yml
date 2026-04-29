@@ -43,3 +43,41 @@ group:
         dest: .github/dependabot.yml
       - source: sync/CODEOWNERS-ratkaisutoimiston-frontend
         dest: CODEOWNERS
+
+  # release-please
+  - repos: |
+      City-of-Helsinki/atv
+      City-of-Helsinki/events-helsinki-monorepo
+      City-of-Helsinki/geo-search
+      City-of-Helsinki/haravajarjestelma
+      City-of-Helsinki/hauki
+      City-of-Helsinki/hauki-admin-ui
+      City-of-Helsinki/hel-osm-styles
+      City-of-Helsinki/helerm
+      City-of-Helsinki/helerm-ui
+      City-of-Helsinki/kerrokantasi
+      City-of-Helsinki/kerrokantasi-ui
+      City-of-Helsinki/kukkuu
+      City-of-Helsinki/kukkuu-admin
+      City-of-Helsinki/kukkuu-ui
+      City-of-Helsinki/lidotiku
+      City-of-Helsinki/linked-volunteering-ui
+      City-of-Helsinki/linkedcomponents-ui
+      City-of-Helsinki/linkedevents
+      City-of-Helsinki/linkedregistrations-ui
+      City-of-Helsinki/notification-service-api
+      City-of-Helsinki/open-city-profile
+      City-of-Helsinki/open-city-profile-ui
+      City-of-Helsinki/palvelutarjotin
+      City-of-Helsinki/palvelutarjotin-admin
+      City-of-Helsinki/palvelutarjotin-ui
+      City-of-Helsinki/pysakoinnin-sahk-asiointi
+      City-of-Helsinki/pysakoinnin-sahk-asiointi-ui
+      City-of-Helsinki/servicemap-ui
+      City-of-Helsinki/smbackend
+      City-of-Helsinki/tirehtoori
+      City-of-Helsinki/unified-search
+      City-of-Helsinki/yjdh
+    files:
+      - source: sync/.github/workflows/release-please.yml
+        dest: .github/workflows/release-please.yml
