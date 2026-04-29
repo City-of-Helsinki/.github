@@ -106,8 +106,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Required by SonarQube Cloud
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Install system packages
         run: |
           sudo apt-get update
@@ -166,6 +165,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      # Required by SonarQube Cloud for blame information
+      with:
+        fetch-depth: 0
     - name: Restore coverage.xml
       uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
       with:
