@@ -41,6 +41,10 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`working-directory`** (string): Repository working directory where to run yarn installation and the tests. Default is `.` (the repository root).
 - **`app-directory`** (string): The subdirectory of the application where the tests are run. Default is **`working-directory`**.
 
+### 🔑 Secrets
+
+- **`SONAR_TOKEN`**: Token for SonarQube Cloud Scan. Required.
+
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
 ```yaml
