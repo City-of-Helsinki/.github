@@ -1,0 +1,171 @@
+name: Common CI for Django APIs (uv)
+on:
+  workflow_call:
+    inputs:
+      # Required parameters
+      python-version:
+        description: 'Python version to use'
+        required: true
+        type: string
+      postgres-major-version:
+        description: 'PostgreSQL major version to use (supported versions are 13, 14 and 17)'
+        required: true
+        type: number
+      # Optional parameters
+      use-postgis:
+        description: 'Set to true to use the PostGIS extension'
+        required: false
+        type: boolean
+        default: false
+      extra-commands:
+        description: 'Extra setup commands or checks to run before running tests'
+        required: false
+        type: string
+      working-directory:
+        description: 'Working directory for the tests job.'
+        required: false
+        type: string
+        default: '.'
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarQube Cloud token'
+        required: true
+  workflow_dispatch:
+
+env:
+  SECRET_KEY: topsecret123
+  DATABASE_URL: ${{ inputs.use-postgis == true && 'postgis' || 'postgres' }}://test_user:test_password@localhost/test_db
+  # Used by django-searchable-encrypted-fields
+  FIELD_ENCRYPTION_KEYS: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+
+jobs:
+  commitlint:
+    name: Check commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - name: Run commitlint
+        uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed  # v6.2.1
+
+  pre-commit:
+    name: Run pre-commit hooks
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+    - name: Setup Python ${{ inputs.python-version }}
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Run pre-commit
+      uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
+      with:
+        extra_args: ${{ inputs.working-directory != '.' && format('--files {0}/**', inputs.working-directory) || '' }}
+
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    services:
+      postgres:
+        # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
+        image: ${{ inputs.use-postgis &&
+                    (inputs.postgres-major-version == '17' && 'postgis/postgis:17-3.5-alpine' ||
+                     inputs.postgres-major-version == '14' && 'postgis/postgis:14-3.2-alpine' ||
+                     inputs.postgres-major-version == '13' && 'postgis/postgis:13-3.2-alpine') ||
+                    (inputs.postgres-major-version == '17' && 'postgres:17-alpine' ||
+                     inputs.postgres-major-version == '14' && 'postgres:14-alpine' ||
+                     inputs.postgres-major-version == '13' && 'postgres:13-alpine') ||
+                     'postgres:alpine' }}  # This fallback is used only so that we don't error out before the validation step
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        # Needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Validate provided PostgreSQL major version
+        working-directory: ${{ github.workspace }}
+        run: |
+          supported_versions=("13" "14" "17")
+          if [[ ! " ${supported_versions[*]} " == *" ${{ inputs.postgres-major-version }} "* ]]; then
+            echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13, 14 and 17."
+            exit 1
+          fi
+      - name: Set up locale
+        working-directory: ${{ github.workspace }}
+        run: |
+          sudo locale-gen fi_FI.UTF-8
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          fetch-depth: 1
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install libpq-dev gettext
+      - name: Install system packages for PostGIS
+        if: ${{ inputs.use-postgis }}
+        run: |
+          sudo apt-get install gdal-bin
+      - name: Install uv and set up Python ${{ inputs.python-version }}
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39  # v8.2.0
+        with:
+          enable-cache: true
+          python-version: ${{ inputs.python-version }}
+          cache-dependency-glob: "**/uv.lock"
+      - name: Install Python dependencies
+        run: |
+          uv sync --frozen
+      - name: Run extra commands
+        if: ${{ inputs.extra-commands != ''}}
+        run: ${{ inputs.extra-commands }}
+      - name: Compile translations
+        run: |
+          if find . -name "*.po" | grep -q .; then
+            uv run python manage.py compilemessages
+          fi
+      - name: Check migrations
+        run: |
+          uv run python manage.py makemigrations --dry-run --check
+      - name: Run tests
+        run: |
+          uv run pytest -ra -vvv --cov=. --cov-report=xml
+      - name: Store coverage.xml
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+  sonarcloud:
+    name: Run SonarQube Cloud Scan
+    runs-on: ubuntu-latest
+    needs: tests
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    steps:
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      # Required by SonarQube Cloud for blame information
+      with:
+        fetch-depth: 0
+    - name: Restore coverage.xml
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+      with:
+        path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
+        key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        fail-on-cache-miss: true
+    - name: SonarQube Cloud Scan
+      uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995  # v8.1.0
+      with:
+        projectBaseDir: ${{ inputs.working-directory }}
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
