@@ -7,6 +7,7 @@ This reusable workflow is part of the City of Helsinki's GitHub Actions setup, s
 - **Commit Linting**: Enforces commit message standards using [commitlint](https://commitlint.js.org/).
 - **Code Style Checks**: Verifies code style and formatting using [pre-commit](https://pre-commit.com/).
 - **Automated Testing**: Runs project tests across multiple Python versions using [hatch](https://hatch.pypa.io/).
+- **Database Testing**: Optionally starts a PostgreSQL (with or without PostGIS) service and sets `DATABASE_URL` for tests that require a database.
 - **Code Quality Analysis**: Performs a [SonarQube Cloud](https://sonarcloud.io/) scan.
 
 ## Requirements for Projects Using the Workflow
@@ -30,6 +31,8 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`enable-sonar`** (boolean): Whether to run the SonarQube Cloud Scan job after tests. Defaults to `true`.
 - **`commitlint-config-file`** (string): Path to the commitlint config file. If not set, commitlint uses its default config discovery.
 - **`pre-commit-config-file`** (string): Path to `.pre-commit-config.yaml`. If empty, pre-commit uses its default discovery (file in repository root).
+- **`postgres-major-version`** (string): PostgreSQL major version to use for testing. Supported versions: `13`, `14`, `17`. Optional - omit if no database is needed.
+- **`use-postgis`** (boolean): Set to `true` to use the PostGIS extension. Requires `postgres-major-version` to be set. Defaults to `false`.
 
 ### Secrets
 
@@ -61,3 +64,32 @@ jobs:
     with:
       python-matrix: "['3.10', '3.11', '3.12', '3.13', '3.14']"
 ```
+
+### Example usage with PostgreSQL (`<own project>/.github/workflows/ci.yml`)
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  common:
+    uses: City-of-Helsinki/.github/.github/workflows/ci-python-library.yml@main
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      python-matrix: "['3.12', '3.13']"
+      postgres-major-version: "17"
+```
+
+When `postgres-major-version` is set, the workflow starts a PostgreSQL service and exposes a `DATABASE_URL` environment variable (`postgres://test_user:test_password@localhost/test_db`) to the test runner.
