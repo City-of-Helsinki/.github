@@ -17,6 +17,16 @@ on:
           required: false
           type: boolean
           default: true
+      postgres-major-version:
+          description: "PostgreSQL major version to use for testing (supported: 13, 14, 17). Optional - omit if no database is needed."
+          required: false
+          type: string
+          default: ''
+      use-postgis:
+          description: "Set to true to use the PostGIS extension. Requires postgres-major-version to be set."
+          required: false
+          type: boolean
+          default: false
     secrets:
       sonar-token:
         description: "Token for SonarQube Cloud Scan. Required if enable-sonar is set to true."
@@ -59,7 +69,38 @@ jobs:
       matrix:
         python_version: ${{ fromJSON(inputs.python-matrix) }}
 
+    services:
+      postgres:
+        # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
+        image: ${{ inputs.postgres-major-version != '' &&
+                  (inputs.use-postgis &&
+                    (inputs.postgres-major-version == '17' && 'postgis/postgis:17-3.5-alpine' ||
+                     inputs.postgres-major-version == '14' && 'postgis/postgis:14-3.2-alpine' ||
+                     inputs.postgres-major-version == '13' && 'postgis/postgis:13-3.2-alpine') ||
+                    (inputs.postgres-major-version == '17' && 'postgres:17-alpine' ||
+                     inputs.postgres-major-version == '14' && 'postgres:14-alpine' ||
+                     inputs.postgres-major-version == '13' && 'postgres:13-alpine')) ||
+                  'postgres:alpine' }}  # This fallback is used only so that we don't error out before the validation step
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
+    - name: Validate provided PostgreSQL major version
+      if: ${{ inputs.postgres-major-version != '' }}
+      env:
+        POSTGRES_MAJOR_VERSION: ${{ inputs.postgres-major-version }}
+      run: |
+        supported_versions=("13" "14" "17")
+        if [[ ! " ${supported_versions[*]} " == *" ${POSTGRES_MAJOR_VERSION} "* ]]; then
+          echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13, 14 and 17."
+          exit 1
+        fi
+
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Set up Python ${{ matrix.python_version }}
@@ -78,6 +119,22 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+
+    - name: Install system packages
+      if: ${{ inputs.postgres-major-version != '' }}
+      env:
+        USE_POSTGIS: ${{ inputs.use-postgis }}
+      run: |
+        packages=(libpq-dev)
+        if [[ "${USE_POSTGIS}" == "true" ]]; then
+          packages+=(gdal-bin)
+        fi
+        sudo apt-get update
+        sudo apt-get install -y "${packages[@]}"
+
+    - name: Set database URL
+      if: ${{ inputs.postgres-major-version != '' }}
+      run: echo "DATABASE_URL=${{ inputs.use-postgis == true && 'postgis' || 'postgres' }}://test_user:test_password@localhost/test_db" >> $GITHUB_ENV
 
     - name: Install hatch
       run: python -m pip install hatch
