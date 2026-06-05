@@ -69,26 +69,6 @@ jobs:
       matrix:
         python_version: ${{ fromJSON(inputs.python-matrix) }}
 
-    services:
-      postgres:
-        # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
-        image: ${{ inputs.postgres-major-version != '' &&
-                  (inputs.use-postgis &&
-                    (inputs.postgres-major-version == '17' && 'postgis/postgis:17-3.5-alpine' ||
-                     inputs.postgres-major-version == '14' && 'postgis/postgis:14-3.2-alpine' ||
-                     inputs.postgres-major-version == '13' && 'postgis/postgis:13-3.2-alpine') ||
-                    (inputs.postgres-major-version == '17' && 'postgres:17-alpine' ||
-                     inputs.postgres-major-version == '14' && 'postgres:14-alpine' ||
-                     inputs.postgres-major-version == '13' && 'postgres:13-alpine')) ||
-                  'postgres:alpine' }}  # This fallback is used only so that we don't error out before the validation step
-        env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
     - name: Validate provided PostgreSQL major version
       if: ${{ inputs.postgres-major-version != '' }}
@@ -100,6 +80,41 @@ jobs:
           echo "Error: Unsupported PostgreSQL major version provided. Supported versions are 13, 14 and 17."
           exit 1
         fi
+
+    - name: Start PostgreSQL
+      if: ${{ inputs.postgres-major-version != '' }}
+      env:
+        # The workflow supports only the PostgreSQL and PostGIS versions used in Platta
+        POSTGRES_IMAGE: ${{ inputs.use-postgis &&
+                  (inputs.postgres-major-version == '17' && 'postgis/postgis:17-3.5-alpine' ||
+                   inputs.postgres-major-version == '14' && 'postgis/postgis:14-3.2-alpine' ||
+                   inputs.postgres-major-version == '13' && 'postgis/postgis:13-3.2-alpine') ||
+                  (inputs.postgres-major-version == '17' && 'postgres:17-alpine' ||
+                   inputs.postgres-major-version == '14' && 'postgres:14-alpine' ||
+                   inputs.postgres-major-version == '13' && 'postgres:13-alpine') }}
+      run: |
+        docker run -d --name postgres \
+          -e POSTGRES_USER=test_user \
+          -e POSTGRES_PASSWORD=test_password \
+          -e POSTGRES_DB=test_db \
+          -p 5432:5432 \
+          --health-cmd pg_isready \
+          --health-interval 10s \
+          --health-timeout 5s \
+          --health-retries 5 \
+          "$POSTGRES_IMAGE"
+        echo "Waiting for PostgreSQL to become healthy..."
+        for _ in $(seq 1 30); do
+          status=$(docker inspect --format '{{.State.Health.Status}}' postgres)
+          if [[ "$status" == "healthy" ]]; then
+            echo "PostgreSQL is healthy."
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "Error: PostgreSQL did not become healthy in time."
+        docker logs postgres
+        exit 1
 
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
