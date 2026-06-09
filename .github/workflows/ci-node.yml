@@ -58,9 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Run commitlint
-        uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed  # v6.2.1
+        uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
 
   build:
     name: Lint and build
@@ -70,17 +70,17 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Use Node.js ${{ inputs.node-version }} with dependency path
         if: ${{ inputs.working-directory != '.' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
           cache-dependency-path: ${{ inputs.working-directory }}/package.json
       - name: Use Node.js ${{ inputs.node-version }} without dependency path
         if: ${{ inputs.working-directory == '.' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
@@ -114,7 +114,7 @@ jobs:
         run: yarn build
       - name: Upload build
         if: ${{ inputs.upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: build-artifacts-${{ inputs.node-version }}
           path: |
@@ -138,17 +138,17 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
     - name: Use Node.js ${{ inputs.node-version }} with dependency path
       if: ${{ inputs.working-directory != '.' }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
         cache-dependency-path: ${{ inputs.working-directory }}/package.json
     - name: Use Node.js ${{ inputs.node-version }} without dependency path
       if: ${{ inputs.working-directory == '.' }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
@@ -179,7 +179,7 @@ jobs:
     # Resolves the effective directory (app-directory if set, else working-directory),
     # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
     - name: Store coverage report
-      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: ${{ (inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) && format('{0}/', inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) || ''}}coverage
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
@@ -193,14 +193,14 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       with:
         fetch-depth: 0
     # Coverage path logic (keep in sync with tests job's cache/save step):
     # Resolves the effective directory (app-directory if set, else working-directory),
     # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
     - name: Restore coverage report
-      uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
+      uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: ${{ (inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) && format('{0}/', inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) || ''}}coverage
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
