@@ -31,6 +31,9 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`use-postgis`** (boolean): Set to `true` to enable the PostGIS extension. Default is `false`.
 - **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
 - **`working-directory`** (string): Repository subdirectory where to run tests. Default is repository root.
+- **`skip-sonar`** (boolean): Set to `true` to skip the SonarQube Cloud scan. Default is `false`.
+- **`commitlint-config-file`** (string): Path to the commitlint config file. If not set, commitlint uses its default config discovery.
+- **`pre-commit-config-file`** (string): Path to `.pre-commit-config.yaml`. If empty, pre-commit uses its default discovery (file in repository root).
 
 ### 🔑 Secrets
 

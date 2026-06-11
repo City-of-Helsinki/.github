@@ -46,10 +46,23 @@ on:
         required: false
         type: boolean
         default: true
+      pnpm-version:
+        description: >
+          pnpm version to use (passed to pnpm/action-setup).
+          If empty, pnpm/action-setup reads the version from the
+          packageManager field in package.json.
+        required: false
+        type: string
+        default: ""
+      commitlint-config-file:
+        description: 'Path to commitlint config file'
+        required: false
+        type: string
+        default: ''
     secrets:
       SONAR_TOKEN:
         description: 'SonarQube Cloud token'
-        required: true
+        required: false
   workflow_dispatch:
 
 jobs:
@@ -61,6 +74,8 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Run commitlint
         uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
+        with:
+          configFile: ${{ inputs.commitlint-config-file }}
 
   build:
     name: Lint and build
