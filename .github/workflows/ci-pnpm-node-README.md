@@ -52,6 +52,8 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`skip-sonar`** (boolean): Set to true to skip SonarQube checks. Default is `false`.
 - **`skip-build`** (boolean): Set to true to skip the build phase. Default is `false`.
 - **`ignore-scripts`** (boolean): Set to true to skip lifecycle scripts during install (`--ignore-scripts`). Default is `true`.
+- **`pnpm-version`** (string): pnpm version to use (passed to `pnpm/action-setup`). If empty, the version is read from the `packageManager` field in `package.json`.
+- **`commitlint-config-file`** (string): Path to the commitlint config file. If not set, commitlint uses its default config discovery.
 
 ### 🔑 Secrets
 

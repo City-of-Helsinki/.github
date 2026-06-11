@@ -28,6 +28,8 @@ To use this reusable workflow, create a project-specific workflow file in your `
 
 - **`python-version`** (string): Python version to use for pre-commit checks. Defaults to `"3.x"`.
 - **`enable-sonar`** (boolean): Whether to run the SonarQube Cloud Scan job after tests. Defaults to `true`.
+- **`commitlint-config-file`** (string): Path to the commitlint config file. If not set, commitlint uses its default config discovery.
+- **`pre-commit-config-file`** (string): Path to `.pre-commit-config.yaml`. If empty, pre-commit uses its default discovery (file in repository root).
 
 ### Secrets
 

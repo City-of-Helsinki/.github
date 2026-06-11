@@ -17,6 +17,16 @@ on:
           required: false
           type: boolean
           default: true
+      commitlint-config-file:
+          description: 'Path to commitlint config file. If empty, commitlint uses its default config discovery.'
+          required: false
+          type: string
+          default: ''
+      pre-commit-config-file:
+          description: 'Path to .pre-commit-config.yaml. If empty, pre-commit uses default discovery.'
+          required: false
+          type: string
+          default: ''
     secrets:
       sonar-token:
         description: "Token for SonarQube Cloud Scan. Required if enable-sonar is set to true."
@@ -36,6 +46,8 @@ jobs:
 
       - name: Run commitlint
         uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
+        with:
+          configFile: ${{ inputs.commitlint-config-file }}
 
   pre-commit:
     name: Run pre-commit hooks
@@ -51,6 +63,8 @@ jobs:
 
     - name: Run pre-commit
       uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+      with:
+        extra_args: ${{ inputs['pre-commit-config-file'] != '' && format('--config {0}', inputs['pre-commit-config-file']) || '' }}
 
   tests:
     name: Python ${{ matrix.python_version }}

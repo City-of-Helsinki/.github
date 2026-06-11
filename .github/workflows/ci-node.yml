@@ -36,6 +36,11 @@ on:
         required: false
         type: boolean
         default: false
+      commitlint-config-file:
+        description: 'Path to commitlint config file'
+        required: false
+        type: string
+        default: ''
       working-directory:
         description: 'Working directory for the yarn installation, build and tests jobs.'
         required: false
@@ -49,7 +54,7 @@ on:
     secrets:
       SONAR_TOKEN:
         description: 'SonarQube Cloud token'
-        required: true
+        required: false
   workflow_dispatch:
 
 jobs:
@@ -61,6 +66,8 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Run commitlint
         uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
+        with:
+          configFile: ${{ inputs.commitlint-config-file }}
 
   build:
     name: Lint and build
