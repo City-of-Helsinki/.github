@@ -1,0 +1,117 @@
+name: Reusable Workflow Tests
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/*.yml"
+      - "!.github/workflows/sync-files.yml"
+      - ".github/workflow-test-fixtures/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test-ci-node:
+    name: Test ci-node
+    uses: ./.github/workflows/ci-node.yml
+    with:
+      node-version: "24"
+      working-directory: ".github/workflow-test-fixtures/node-yarn"
+      app-directory: ".github/workflow-test-fixtures/node-yarn"
+      upload_artifacts: true
+      skip_sonar: true
+      commitlint-config-file: .github/workflow-test-fixtures/commitlint.config.mjs
+      extra-commands: "node --version"
+      artifact-name: build-artifacts-yarn-24
+    secrets:
+      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-ci-node-assert-artifact:
+    name: Test ci-node (assert artifact)
+    runs-on: ubuntu-latest
+    needs: test-ci-node
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts-yarn-24
+      - name: Verify expected build output
+        run: test -f dist/index.js
+
+  test-ci-pnpm-node:
+    name: Test ci-pnpm-node
+    uses: ./.github/workflows/ci-pnpm-node.yml
+    with:
+      node-version: "24"
+      working-directory: ".github/workflow-test-fixtures/node-pnpm"
+      app-directory: ".github/workflow-test-fixtures/node-pnpm"
+      pnpm-version: "11.5.3"
+      upload-artifacts: true
+      skip-sonar: true
+      extra-commands: "node --version"
+    secrets:
+    name: Test ci-pnpm-node (assert artifact)
+    runs-on: ubuntu-latest
+    needs: test-ci-pnpm-node
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts-24
+      - name: Verify expected build output
+        run: test -f dist/index.js
+
+  test-ci-django-api:
+    name: Test ci-django-api
+    uses: ./.github/workflows/ci-django-api.yml
+    with:
+      python-version: "3.12"
+      postgres-major-version: 14
+      working-directory: ".github/workflow-test-fixtures/django-api"
+      skip-sonar: true
+      commitlint-config-file: .github/workflow-test-fixtures/commitlint.config.mjs
+      pre-commit-config-file: .github/workflow-test-fixtures/django-api/.pre-commit-config.yaml
+      extra-commands: "python manage.py check"
+    secrets:
+      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-ci-uv-django-api:
+    name: Test ci-uv-django-api
+    uses: ./.github/workflows/ci-uv-django-api.yml
+    with:
+      python-version: "3.12"
+      postgres-major-version: 14
+      working-directory: ".github/workflow-test-fixtures/django-api-uv"
+      skip-sonar: true
+      commitlint-config-file: .github/workflow-test-fixtures/commitlint.config.mjs
+      pre-commit-config-file: .github/workflow-test-fixtures/django-api-uv/.pre-commit-config.yaml
+      extra-commands: "uv run python manage.py check"
+    secrets:
+      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-build-python-dists:
+    name: Test build-python-dists
+    uses: ./.github/workflows/build-python-dists.yml
+    with:
+      build-command: |
+        python - <<'PY'
+        from pathlib import Path
+        Path("dist").mkdir(exist_ok=True)
+        Path("dist/test.txt").write_text("ok", encoding="utf-8")
+        PY
+      artifact-path: "dist/test.txt"
+      artifact-name: "test-python-dist"
+
+  test-build-python-dists-assert-artifact:
+    name: Test build-python-dists (assert artifact)
+    runs-on: ubuntu-latest
+    needs: test-build-python-dists
+    steps:
+      - name: Download distribution artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: test-python-dist
+      - name: Verify artifact file exists
+        run: test -f test.txt

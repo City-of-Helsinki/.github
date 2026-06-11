@@ -40,7 +40,7 @@ on:
         description: 'Path to commitlint config file'
         required: false
         type: string
-        default: ''
+        default: './commitlint.config.mjs'
       working-directory:
         description: 'Working directory for the yarn installation, build and tests jobs.'
         required: false
@@ -51,6 +51,11 @@ on:
         required: false
         type: boolean
         default: true
+      artifact-name:
+        description: 'Name for the uploaded build artifact. Defaults to build-artifacts-<node-version>.'
+        required: false
+        type: string
+        default: ''
     secrets:
       SONAR_TOKEN:
         description: 'SonarQube Cloud token'
@@ -123,7 +128,7 @@ jobs:
         if: ${{ inputs.upload_artifacts }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: build-artifacts-${{ inputs.node-version }}
+          name: ${{ inputs.artifact-name != '' && inputs.artifact-name || format('build-artifacts-{0}', inputs.node-version) }}
           path: |
             ${{ inputs.app-directory }}/dist
             ${{ inputs.app-directory }}/build

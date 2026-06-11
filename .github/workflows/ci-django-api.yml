@@ -35,7 +35,7 @@ on:
         description: 'Path to commitlint config file'
         required: false
         type: string
-        default: ''
+        default: './commitlint.config.mjs'
       pre-commit-config-file:
         description: 'Path to .pre-commit-config.yaml. If empty, pre-commit uses default discovery.'
         required: false

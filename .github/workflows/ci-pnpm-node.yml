@@ -58,7 +58,7 @@ on:
         description: 'Path to commitlint config file'
         required: false
         type: string
-        default: ''
+        default: './commitlint.config.mjs'
     secrets:
       SONAR_TOKEN:
         description: 'SonarQube Cloud token'
