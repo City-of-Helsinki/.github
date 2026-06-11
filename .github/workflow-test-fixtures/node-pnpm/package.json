@@ -1,0 +1,11 @@
+{
+  "name": "workflow-compat-node-pnpm",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@11.5.3",
+  "scripts": {
+    "lint": "echo lint-ok",
+    "build": "mkdir -p dist && echo \"console.log('ok')\" > dist/index.js",
+    "test:coverage": "mkdir -p coverage && echo '{}' > coverage/coverage-final.json"
+  }
+}

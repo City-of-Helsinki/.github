@@ -12,3 +12,25 @@ updates:
       default-days: 7
     commit-message:
       prefix: "deps"
+
+  - package-ecosystem: "pip"
+    directory: "/.github/workflow-test-fixtures/django-api"
+    schedule:
+      interval: "weekly"
+    groups:
+      workflow-test-fixtures:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "uv"
+    directory: "/.github/workflow-test-fixtures/django-api-uv"
+    schedule:
+      interval: "weekly"
+    groups:
+      workflow-test-fixtures:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    open-pull-requests-limit: 0
