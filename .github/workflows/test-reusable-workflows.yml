@@ -51,7 +51,11 @@ jobs:
       upload-artifacts: true
       skip-sonar: true
       extra-commands: "node --version"
+      commitlint-config-file: .github/workflow-test-fixtures/commitlint.config.mjs
     secrets:
+      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-ci-pnpm-node-assert-artifact:
     name: Test ci-pnpm-node (assert artifact)
     runs-on: ubuntu-latest
     needs: test-ci-pnpm-node
