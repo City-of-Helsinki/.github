@@ -62,6 +62,10 @@ on:
         required: false
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   commitlint:
     name: Check commit messages
@@ -69,6 +73,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
       - name: Run commitlint
         uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
         with:
@@ -83,6 +89,8 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
       - name: Use Node.js ${{ inputs.node-version }} with dependency path
         if: ${{ inputs.working-directory != '.' }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -151,6 +159,8 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     steps:
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      with:
+        persist-credentials: false
     - name: Use Node.js ${{ inputs.node-version }} with dependency path
       if: ${{ inputs.working-directory != '.' }}
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -208,6 +218,7 @@ jobs:
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       with:
         fetch-depth: 0
+        persist-credentials: false
     # Coverage path logic (keep in sync with tests job's cache/save step):
     # Resolves the effective directory (app-directory if set, else working-directory),
     # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.

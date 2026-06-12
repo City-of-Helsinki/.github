@@ -47,6 +47,10 @@ on:
         required: false
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: read
+
 env:
   SECRET_KEY: topsecret123
   DATABASE_URL: ${{ inputs.use-postgis == true && 'postgis' || 'postgres' }}://test_user:test_password@localhost/test_db
@@ -60,6 +64,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
       - name: Run commitlint
         uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
         with:
@@ -71,6 +77,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      with:
+        persist-credentials: false
     - name: Setup Python ${{ inputs.python-version }}
       uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
       with:
@@ -126,6 +134,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 1
+          persist-credentials: false
       - name: Install system packages
         run: |
           sudo apt-get update
@@ -188,6 +197,7 @@ jobs:
       # Required by SonarQube Cloud for blame information
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: Restore coverage.xml
       uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
