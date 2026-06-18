@@ -8,6 +8,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 - **Code Style Checks**: Verifies code style and formatting using [pre-commit](https://pre-commit.com/).
 - **Automated Testing**: Runs project tests using [pytest](https://docs.pytest.org/en/stable/).
 - **Code Quality Analysis**: Performs a [SonarQube Cloud](https://sonarcloud.io/) scan.
+- **Dependency Review**: Scans dependency changes in pull requests for known vulnerabilities using [GitHub's dependency review action](https://github.com/actions/dependency-review-action).
 
 ## 📋 Requirements for Projects Using the Workflow
 

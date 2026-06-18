@@ -8,6 +8,7 @@ This reusable workflow is part of the City of Helsinki’s GitHub Actions setup,
 - **Build and Lint**: Build and verifies code style and formatting via yarn.
 - **Automated Testing**: Runs project tests via yarn.
 - **Code Quality Analysis**: Performs a [SonarQube Cloud](https://sonarcloud.io/) scan.
+- **Dependency Review**: Scans dependency changes in pull requests for known vulnerabilities using [GitHub's dependency review action](https://github.com/actions/dependency-review-action).
 
 ## 📋 Requirements for Projects Using the Workflow
 

@@ -10,11 +10,13 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
   test-ci-node:
     name: Test ci-node
+    permissions:
+      contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci-node.yml
     with:
       node-version: "24"
@@ -42,6 +44,9 @@ jobs:
 
   test-ci-pnpm-node:
     name: Test ci-pnpm-node
+    permissions:
+      contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci-pnpm-node.yml
     with:
       node-version: "24"
@@ -69,6 +74,9 @@ jobs:
 
   test-ci-django-api:
     name: Test ci-django-api
+    permissions:
+      contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci-django-api.yml
     with:
       python-version: "3.12"
@@ -83,6 +91,9 @@ jobs:
 
   test-ci-uv-django-api:
     name: Test ci-uv-django-api
+    permissions:
+      contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci-uv-django-api.yml
     with:
       python-version: "3.12"

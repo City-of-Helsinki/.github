@@ -15,6 +15,7 @@ Keeping both workflows allows projects to use the same CI structure while matchi
 - **Build and Lint**: Build and verifies code style and formatting via pnpm.
 - **Automated Testing**: Runs project tests via pnpm.
 - **Code Quality Analysis**: Performs a [SonarQube Cloud](https://sonarcloud.io/) scan.
+- **Dependency Review**: Scans dependency changes in pull requests for known vulnerabilities using [GitHub's dependency review action](https://github.com/actions/dependency-review-action).
 
 ## 📋 Requirements for Projects Using the Workflow
 
