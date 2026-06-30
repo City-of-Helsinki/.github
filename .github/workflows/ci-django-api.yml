@@ -80,7 +80,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Setup Python ${{ inputs.python-version }}
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
       with:
         python-version: ${{ inputs.python-version }}
     - name: Run pre-commit
@@ -144,12 +144,12 @@ jobs:
         run: |
           sudo apt-get install gdal-bin
       - name: Setup Python ${{ inputs.python-version }}
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ inputs.python-version }}
           cache: pip
       - name: Cache pip packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         env:
           cache-name: cache-pip-modules
         with:
@@ -178,7 +178,7 @@ jobs:
         run: |
           pytest -ra -vvv --cov=. --cov-report=xml
       - name: Store coverage.xml
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
@@ -199,7 +199,7 @@ jobs:
         fetch-depth: 0
         persist-credentials: false
     - name: Restore coverage.xml
-      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
         key: cache-${{ github.run_id }}-${{ github.run_attempt }}

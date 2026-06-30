@@ -208,7 +208,7 @@ jobs:
       # Resolves the effective directory (app-directory if set, else working-directory),
       # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
       - name: Store coverage report
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ (inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) && format('{0}/', inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) || ''}}coverage
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
@@ -231,7 +231,7 @@ jobs:
       # Resolves the effective directory (app-directory if set, else working-directory),
       # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
       - name: Restore coverage report
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ (inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) && format('{0}/', inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) || ''}}coverage
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
