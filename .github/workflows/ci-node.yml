@@ -93,14 +93,14 @@ jobs:
           persist-credentials: false
       - name: Use Node.js ${{ inputs.node-version }} with dependency path
         if: ${{ inputs.working-directory != '.' }}
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
           cache-dependency-path: ${{ inputs.working-directory }}/package.json
       - name: Use Node.js ${{ inputs.node-version }} without dependency path
         if: ${{ inputs.working-directory == '.' }}
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'yarn'
@@ -163,14 +163,14 @@ jobs:
         persist-credentials: false
     - name: Use Node.js ${{ inputs.node-version }} with dependency path
       if: ${{ inputs.working-directory != '.' }}
-      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
         cache-dependency-path: ${{ inputs.working-directory }}/package.json
     - name: Use Node.js ${{ inputs.node-version }} without dependency path
       if: ${{ inputs.working-directory == '.' }}
-      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'yarn'
@@ -235,7 +235,7 @@ jobs:
         find coverage -type f \( -name '*.info' -o -name 'lcov.info' \) 2>/dev/null | xargs -r sed -i 's@SF:'$GITHUB_WORKSPACE'@SF:/github/workspace/@g' || true
         find coverage -type f -name '*.json' 2>/dev/null | xargs -r sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' || true
     - name: SonarQube Cloud Scan
-      uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
+      uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
       with:
         projectBaseDir: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}
       env:
