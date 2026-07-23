@@ -157,8 +157,8 @@ jobs:
         run: ${{ inputs.extra-commands }}
       - name: Compile translations
         run: |
-          if find . -name "*.po" | grep -q .; then
-            uv run python manage.py compilemessages
+          if [ -n "$(find . -not \( -name .venv -prune \) -name '*.po' -print -quit)" ]; then
+            uv run python manage.py compilemessages --ignore .venv
           fi
       - name: Check migrations
         run: |
