@@ -63,10 +63,27 @@ jobs:
 > publishing part in particular **must** be non-reusable.
 > [See gh-action-pypi-publish's README for more information.](gh-action-pypi-publish#trusted-publishing)
 
+This example also adds a `workflow_dispatch` trigger with the following inputs, allowing the release and publish steps to be run manually for a specific ref:
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `ref` | The branch, tag or SHA to publish. E.g. main, refs/tags/v1.0.0, aeb2839. | Yes | - |
+| `skip-build` | Skip artifact build and publish, i.e. run release-please only. | No | `false` |
+
 ```yaml
 name: Create release & publish to PyPI
-# If ran manually, e.g. with ref set to "refs/tags/v1.2.3", set the run name to "Publish refs/tags/v1.2.3".
-run-name: ${{ inputs.ref && format('Publish {0}', inputs.ref) || null }}
+# For manual runs:
+# - If ref is set (for example, "refs/tags/v1.2.3"), use "Publish refs/tags/v1.2.3".
+# - If skipping build (for example, ref is "main"), use "Release-please only (main)"
+# Otherwise, use the default name (latest commit).
+run-name: >-
+  ${{
+    inputs.ref &&
+      (inputs.skip-build
+        && format('Release-please only ({0})', inputs.ref)
+        || format('Publish {0}', inputs.ref))
+    || null
+  }}
 
 on:
   push:
@@ -78,9 +95,13 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "The branch, tag or SHA to publish."
+        description: "The branch, tag or SHA to publish. E.g. main, refs/tags/v1.0.0, aeb2839."
         required: true
         type: string
+      skip-build:
+        description: "Skip artifact build and publish, i.e. run release-please only."
+        default: false
+        type: boolean
 
 jobs:
   release-please:
@@ -97,8 +118,8 @@ jobs:
     uses: City-of-Helsinki/.github/.github/workflows/build-python-dists.yml@main
     with:
         ref: ${{ inputs.ref }}
-    # Run build job if a release was created or a ref was specified (i.e. workflow was invoked manually)
-    if: ${{ needs.release-please.outputs.release_created || inputs.ref }}
+    # If the build is not skipped, run the build job when a release was created or a ref was specified.
+    if: ${{ !inputs.skip-build && (needs.release-please.outputs.release_created || inputs.ref) }}
 
   publish-to-pypi:
     name: Publish to PyPI
