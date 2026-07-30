@@ -21,7 +21,6 @@ group:
   # backend, pip
   - repos: |
       City-of-Helsinki/example-backend-profile
-      City-of-Helsinki/kerrokantasi
     files: 
       - source: sync/.commitlintrc.mjs
         dest: .commitlintrc.mjs
