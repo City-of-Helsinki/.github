@@ -18,6 +18,20 @@ group:
       - source: sync/CODEOWNERS-ratkaisutoimiston-backend
         dest: CODEOWNERS
 
+  # python libraries, publish.yml
+  # this is separated from above since trusted publishing
+  # hasn't been configured for every library yet
+  - repos: |
+      City-of-Helsinki/django-helsinki-suomifi-messages
+      City-of-Helsinki/django-helsinki-suomifi-on-behalf
+      City-of-Helsinki/django-resilient-logger
+      City-of-Helsinki/django-helsinki-health-endpoints
+      City-of-Helsinki/django-helusers
+      City-of-Helsinki/django-logger-extra
+    files: 
+      - source: sync/.github/workflows/pypi-publish.yml
+        dest: .github/workflows/publish.yml
+
   # backend, pip
   - repos: |
       City-of-Helsinki/example-backend-profile
