@@ -63,84 +63,11 @@ jobs:
 > publishing part in particular **must** be non-reusable.
 > [See gh-action-pypi-publish's README for more information.](gh-action-pypi-publish#trusted-publishing)
 
-This example also adds a `workflow_dispatch` trigger with the following inputs, allowing the release and publish steps to be run manually for a specific ref:
+For a complete release and publish workflow, refer to [pypi-publish.yml](../../sync/.github/workflows/pypi-publish.yml). It adds a `workflow_dispatch` trigger with the following inputs, allowing the release and publish steps to be run manually for a specific ref:
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
 | `ref` | The branch, tag or SHA to publish. E.g. main, refs/tags/v1.0.0, aeb2839. | Yes | - |
 | `skip-build` | Skip artifact build and publish, i.e. run release-please only. | No | `false` |
-
-```yaml
-name: Create release & publish to PyPI
-# For manual runs:
-# - If ref is set (for example, "refs/tags/v1.2.3"), use "Publish refs/tags/v1.2.3".
-# - If skipping build (for example, ref is "main"), use "Release-please only (main)"
-# Otherwise, use the default name (latest commit).
-run-name: >-
-  ${{
-    inputs.ref &&
-      (inputs.skip-build
-        && format('Release-please only ({0})', inputs.ref)
-        || format('Publish {0}', inputs.ref))
-    || null
-  }}
-
-on:
-  push:
-    branches:
-      - main
-  # Run daily to keep the release PR date current
-  schedule:
-    - cron: '1 0 * * *'
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "The branch, tag or SHA to publish. E.g. main, refs/tags/v1.0.0, aeb2839."
-        required: true
-        type: string
-      skip-build:
-        description: "Skip artifact build and publish, i.e. run release-please only."
-        default: false
-        type: boolean
-
-jobs:
-  release-please:
-    uses: City-of-Helsinki/.github/.github/workflows/release-please.yml@main
-    permissions:
-      contents: write
-      pull-requests: write
-    with:
-        include-component-in-tag: false
-
-  build:
-    needs:
-      - release-please
-    uses: City-of-Helsinki/.github/.github/workflows/build-python-dists.yml@main
-    with:
-        ref: ${{ inputs.ref }}
-    # If the build is not skipped, run the build job when a release was created or a ref was specified.
-    if: ${{ !inputs.skip-build && (needs.release-please.outputs.release_created || inputs.ref) }}
-
-  publish-to-pypi:
-    name: Publish to PyPI
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    # Run publish job if an artifact was uploaded
-    if: ${{ needs.build.outputs.artifact_name }}
-    environment:
-      name: pypi
-      url: https://pypi.org/p/<package-name>
-    permissions:
-      id-token: write  # mandatory for trusted publishing
-    steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-      with:
-        name: ${{ needs.build.outputs.artifact_name }}
-        path: dist/
-    - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
-```
 
 [gh-action-pypi-publish#trusted-publishing]: https://github.com/pypa/gh-action-pypi-publish/blob/987f11e872eb5ca67aad6a4fe531bd3089142c60/README.md#trusted-publishing
