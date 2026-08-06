@@ -1,0 +1,27 @@
+name: User activity audit
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+# Trigger: 202501101539
+
+on:
+  - workflow_dispatch
+  - push
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check inactive users
+        uses: peter-murray/inactive-users-action@v1
+        with:
+          # GitHub Access Token with permissions for accesing Repositories and Organization data.
+          token: ${{ secrets.ACTIVITY_AUDIT_TOKEN }}
+          # The output directory for the generated report(s).
+          outputDir: ${{ github.workspace }}
+          # The organization that is to be processed to detect inactive users
+          organization: City-of-Helsinki
+          # The number of days in the past to check for activity, this will be ignored if 'since' parameter is used.
+          activity_days: 180
+          # Maximum number of retires when using the Octokit REST API
+          octokit_max_retries: 15
