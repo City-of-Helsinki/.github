@@ -28,6 +28,7 @@ group:
       City-of-Helsinki/django-helsinki-health-endpoints
       City-of-Helsinki/django-helusers
       City-of-Helsinki/django-logger-extra
+      City-of-Helsinki/profile-gdpr-api-tester
     files: 
       - source: sync/.github/workflows/pypi-publish.yml
         dest: .github/workflows/publish.yml
