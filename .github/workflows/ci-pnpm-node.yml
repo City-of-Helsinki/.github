@@ -36,6 +36,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-commitlint:
+        description: Skip commit message linting
+        required: false
+        type: boolean
+        default: false
       working-directory:
         description: Working directory for install/build/test jobs
         required: false
@@ -72,6 +77,7 @@ permissions:
 jobs:
   commitlint:
     name: Check commit messages
+    if: ${{ !inputs.skip-commitlint }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
