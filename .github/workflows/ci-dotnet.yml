@@ -1,0 +1,112 @@
+name: Common CI for .NET apps
+on:
+  workflow_call:
+    inputs:
+      # Optional parameters
+      dotnet-version:
+        description: '.NET SDK version to use, e.g. 10.0.x'
+        required: false
+        type: string
+        default: '10.0.x'
+      working-directory:
+        description: 'Working directory for the tests and SonarQube Cloud scan jobs.'
+        required: false
+        type: string
+        default: '.'
+      extra-commands:
+        description: 'Extra setup commands or checks to run before building and testing'
+        required: false
+        type: string
+      skip-sonar:
+        description: 'Set to true to skip SonarQube Cloud checks'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarQube Cloud token'
+        required: false
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install .NET ${{ inputs.dotnet-version }} SDK
+        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v5.0.0
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Install dotnet-coverage
+        run: dotnet tool install --global dotnet-coverage
+      - name: Run extra commands
+        if: ${{ inputs.extra-commands != '' }}
+        run: ${{ inputs.extra-commands }}
+      - name: Build
+        run: dotnet build --no-incremental
+      - name: Run tests with coverage
+        run: dotnet-coverage collect 'dotnet test' -f xml -o coverage.xml
+      - name: Store coverage.xml
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+  sonarcloud:
+    name: Run SonarQube Cloud Scan
+    if: ${{ !inputs.skip-sonar }}
+    runs-on: ubuntu-latest
+    needs: tests
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        # Required by SonarQube Cloud for blame information
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Restore coverage.xml
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          fail-on-cache-miss: true
+      - name: SonarQube Cloud Scan
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        with:
+          projectBaseDir: ${{ inputs.working-directory }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  dependency-review:
+    name: Dependency Review
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+          fail-on-scopes: runtime, development, unknown
+          license-check: false
+          vulnerability-check: true
+          comment-summary-in-pr: on-failure
+          show-patched-versions: true

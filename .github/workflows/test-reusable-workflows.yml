@@ -106,6 +106,20 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  test-ci-dotnet:
+    name: Test ci-dotnet
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-dotnet.yml
+    with:
+      dotnet-version: "10.0.x"
+      working-directory: ".github/workflow-test-fixtures/dotnet"
+      skip-sonar: true
+      extra-commands: "dotnet --info"
+    secrets:
+      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test-build-python-dists:
     name: Test build-python-dists
     uses: ./.github/workflows/build-python-dists.yml
