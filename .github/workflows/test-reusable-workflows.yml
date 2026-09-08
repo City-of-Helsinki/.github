@@ -28,7 +28,7 @@ jobs:
       extra-commands: "node --version"
       artifact-name: build-artifacts-yarn-24
     secrets:
-      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   test-ci-node-assert-artifact:
     name: Test ci-node (assert artifact)
@@ -58,7 +58,7 @@ jobs:
       extra-commands: "node --version"
       commitlint-config-file: .github/workflow-test-fixtures/commitlint.config.mjs
     secrets:
-      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   test-ci-pnpm-node-assert-artifact:
     name: Test ci-pnpm-node (assert artifact)
@@ -87,7 +87,7 @@ jobs:
       pre-commit-config-file: .github/workflow-test-fixtures/django-api/.pre-commit-config.yaml
       extra-commands: "python manage.py check"
     secrets:
-      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   test-ci-uv-django-api:
     name: Test ci-uv-django-api
@@ -104,7 +104,7 @@ jobs:
       pre-commit-config-file: .github/workflow-test-fixtures/django-api-uv/.pre-commit-config.yaml
       extra-commands: "uv run python manage.py check"
     secrets:
-      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   test-ci-dotnet:
     name: Test ci-dotnet
@@ -118,7 +118,7 @@ jobs:
       skip-sonar: true
       extra-commands: "dotnet --info"
     secrets:
-      SONAR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   test-build-python-dists:
     name: Test build-python-dists
