@@ -30,6 +30,11 @@ To use this reusable workflow, create a project-specific workflow file in your `
 
 ### 📄 Example usage (`<own project>/.github/workflows/ci.yml`)
 
+The example uses the following workflow settings:
+
+- **`concurrency`**: Ensures that only the latest workflow run for each branch or pull request is kept running. An in-progress run is cancelled when a newer run starts.
+- **`permissions`**: Grants the workflow read access to repository contents and write access to pull requests, which is required for reporting workflow results.
+
 ```yaml
 name: CI
 
@@ -39,6 +44,10 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
