@@ -40,6 +40,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   common:
     uses: City-of-Helsinki/.github/.github/workflows/ci-dotnet.yml@main
