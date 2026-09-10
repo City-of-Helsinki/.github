@@ -1,0 +1,105 @@
+name: Common CI for .NET apps
+on:
+  workflow_call:
+    inputs:
+      # Optional parameters
+      dotnet-version:
+        description: '.NET SDK version to use, e.g. 10.0.x'
+        required: false
+        type: string
+        default: '10.0.x'
+      working-directory:
+        description: 'Working directory for the tests and SonarQube Cloud scan jobs.'
+        required: false
+        type: string
+        default: '.'
+      extra-commands:
+        description: 'Extra setup commands or checks to run before building and testing'
+        required: false
+        type: string
+      skip-sonar:
+        description: 'Set to true to skip SonarQube Cloud checks'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarQube Cloud token'
+        required: false
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  tests:
+    name: Run tests and SonarQube Cloud Scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install .NET ${{ inputs.dotnet-version }} SDK
+        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v5.0.0
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Install dotnet-coverage
+        run: dotnet tool install --global dotnet-coverage
+      - name: Install dotnet-sonarscanner
+        if: ${{ !inputs.skip-sonar }}
+        run: dotnet tool install --global dotnet-sonarscanner --version 11.3.0
+      - name: Run extra commands
+        if: ${{ inputs.extra-commands != '' }}
+        run: ${{ inputs.extra-commands }}
+      - name: Begin SonarQube Cloud Scan
+        if: ${{ !inputs.skip-sonar }}
+        run: |
+          sonar_analysis_file="$GITHUB_WORKSPACE/SonarQube.Analysis.xml"
+          sonar_project_key=$(sed -n 's/.*<Property Name="sonar.projectKey">\([^<]*\)<\/Property>.*/\1/p' "$sonar_analysis_file")
+          sonar_organization=$(sed -n 's/.*<Property Name="sonar.organization">\([^<]*\)<\/Property>.*/\1/p' "$sonar_analysis_file")
+          if [ -z "$sonar_project_key" ]; then
+            echo "sonar.projectKey is missing from $sonar_analysis_file"
+            exit 1
+          fi
+          if [ -z "$sonar_organization" ]; then
+            echo "sonar.organization is missing from $sonar_analysis_file"
+            exit 1
+          fi
+          dotnet sonarscanner begin /k:"$sonar_project_key" /o:"$sonar_organization" /s:"$sonar_analysis_file" /d:sonar.token="$SONAR_TOKEN"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Build
+        run: dotnet build --no-incremental
+      - name: Run tests with coverage
+        run: dotnet-coverage collect -f xml -o coverage.xml dotnet test --no-build
+      - name: End SonarQube Cloud Scan
+        if: ${{ !inputs.skip-sonar }}
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  dependency-review:
+    name: Dependency Review
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+          fail-on-scopes: runtime, development, unknown
+          license-check: false
+          vulnerability-check: true
+          comment-summary-in-pr: on-failure
+          show-patched-versions: true

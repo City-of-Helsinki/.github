@@ -14,3 +14,4 @@ The `.github/workflow-test-fixtures/` directory contains minimal project stubs u
 - **`django-api-uv/`** — uv-based Django project fixture for `ci-uv-django-api.yml`
 - **`node-yarn/`** — yarn-based Node.js fixture for `ci-node.yml`
 - **`node-pnpm/`** — pnpm-based Node.js fixture for `ci-pnpm-node.yml`
+- **`dotnet/`** — .NET project fixture for `ci-dotnet.yml`
