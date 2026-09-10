@@ -11,7 +11,7 @@ This reusable workflow is part of the City of Helsinki's GitHub Actions setup, s
 ## 📋 Requirements for Projects Using the Workflow
 
 - `dotnet build` and `dotnet test` work without extra arguments from the project's working directory (i.e. a solution or project file can be discovered automatically).
-- **SonarQube Cloud** project configuration (e.g. `sonar-project.properties`) is present in the calling repository, including `sonar.cs.vscoveragexml.reportsPaths` pointing at the generated `coverage.xml`, and `SONAR_TOKEN` is set in the repository secrets.
+- **SonarQube Cloud** project configuration is present in `SonarQube.Analysis.xml` at the root of the calling repository. It must include `sonar.projectKey`, `sonar.organization`, and `sonar.cs.vscoveragexml.reportsPaths` pointing at the generated `coverage.xml`. The workflow passes the project key and organization through the scanner's required command-line arguments. `SONAR_TOKEN` must be set in the repository secrets.
 
 ## 📚 Usage Instructions
 

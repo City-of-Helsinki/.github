@@ -34,7 +34,7 @@ permissions:
 
 jobs:
   tests:
-    name: Run tests
+    name: Run tests and SonarQube Cloud Scan
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,43 +50,36 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
       - name: Install dotnet-coverage
         run: dotnet tool install --global dotnet-coverage
+      - name: Install dotnet-sonarscanner
+        if: ${{ !inputs.skip-sonar }}
+        run: dotnet tool install --global dotnet-sonarscanner --version 11.3.0
       - name: Run extra commands
         if: ${{ inputs.extra-commands != '' }}
         run: ${{ inputs.extra-commands }}
+      - name: Begin SonarQube Cloud Scan
+        if: ${{ !inputs.skip-sonar }}
+        run: |
+          sonar_analysis_file="$GITHUB_WORKSPACE/SonarQube.Analysis.xml"
+          sonar_project_key=$(sed -n 's/.*<Property Name="sonar.projectKey">\([^<]*\)<\/Property>.*/\1/p' "$sonar_analysis_file")
+          sonar_organization=$(sed -n 's/.*<Property Name="sonar.organization">\([^<]*\)<\/Property>.*/\1/p' "$sonar_analysis_file")
+          if [ -z "$sonar_project_key" ]; then
+            echo "sonar.projectKey is missing from $sonar_analysis_file"
+            exit 1
+          fi
+          if [ -z "$sonar_organization" ]; then
+            echo "sonar.organization is missing from $sonar_analysis_file"
+            exit 1
+          fi
+          dotnet sonarscanner begin /k:"$sonar_project_key" /o:"$sonar_organization" /s:"$sonar_analysis_file" /d:sonar.token="$SONAR_TOKEN"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Build
         run: dotnet build --no-incremental
       - name: Run tests with coverage
-        run: dotnet-coverage collect 'dotnet test' -f xml -o coverage.xml --no-build
-      - name: Store coverage.xml
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
-  sonarcloud:
-    name: Run SonarQube Cloud Scan
-    if: ${{ !inputs.skip-sonar }}
-    runs-on: ubuntu-latest
-    needs: tests
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        # Required by SonarQube Cloud for blame information
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Restore coverage.xml
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ inputs.working-directory && format('{0}/', inputs.working-directory) || ''}}coverage.xml
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-          fail-on-cache-miss: true
-      - name: SonarQube Cloud Scan
-        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
-        with:
-          projectBaseDir: ${{ inputs.working-directory }}
+        run: dotnet-coverage collect -f xml -o coverage.xml dotnet test --no-build
+      - name: End SonarQube Cloud Scan
+        if: ${{ !inputs.skip-sonar }}
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
