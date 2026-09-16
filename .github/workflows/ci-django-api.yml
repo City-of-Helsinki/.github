@@ -26,6 +26,11 @@ on:
         required: false
         type: string
         default: '.'
+      skip-pre-commit:
+        description: 'Set to true to skip pre-commit checks'
+        required: false
+        type: boolean
+        default: false
       skip-sonar:
         description: 'Set to true to skip SonarQube checks'
         required: false
@@ -72,6 +77,7 @@ jobs:
           configFile: ${{ inputs.commitlint-config-file }}
 
   pre-commit:
+    if: ${{ !inputs['skip-pre-commit'] }}
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     steps:
