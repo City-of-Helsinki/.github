@@ -45,7 +45,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install .NET ${{ inputs.dotnet-version }} SDK
-        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v5.0.0
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v5.0.0
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
       - name: Install dotnet-coverage
