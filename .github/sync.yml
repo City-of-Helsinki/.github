@@ -34,13 +34,13 @@ group:
       - source: sync/.github/workflows/pypi-publish.yml
         dest: .github/workflows/publish.yml
 
-  # backend, pip
+  # backend, uv
   - repos: |
       City-of-Helsinki/example-backend-profile
     files: 
       - source: sync/.commitlintrc.mjs
         dest: .commitlintrc.mjs
-      - source: sync/.github/dependabot-pip.yml
+      - source: sync/.github/dependabot-uv.yml
         dest: .github/dependabot.yml
       - source: sync/CODEOWNERS-ratkaisutoimiston-backend
         dest: CODEOWNERS
