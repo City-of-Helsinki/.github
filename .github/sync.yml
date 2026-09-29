@@ -28,6 +28,7 @@ group:
       City-of-Helsinki/django-resilient-logger
       City-of-Helsinki/django-helsinki-health-endpoints
       City-of-Helsinki/django-helusers
+      City-of-Helsinki/django-munigeo
       City-of-Helsinki/django-logger-extra
       City-of-Helsinki/profile-gdpr-api-tester
     files: 
