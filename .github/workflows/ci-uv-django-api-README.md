@@ -39,6 +39,7 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`use-postgis`** (boolean): Set to `true` to enable the PostGIS extension. Default is `false`.
 - **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables or install extra packages: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
 - **`working-directory`** (string): Repository subdirectory where to run tests. Default is repository root.
+- **`coverage-artifact-name`** (string): Coverage artifact name. Default is `coverage-uv-django-api`. Set a unique value if the workflow is called more than once per run.
 - **`skip-pre-commit`** (boolean): Set to `true` to skip the pre-commit checks. Default is `false`.
 - **`skip-sonar`** (boolean): Set to `true` to skip the SonarQube Cloud scan. Default is `false`.
 - **`commitlint-config-file`** (string): Path to the commitlint config file. If not set, commitlint uses its default config discovery.

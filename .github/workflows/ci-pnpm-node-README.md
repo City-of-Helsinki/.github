@@ -48,6 +48,7 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`extra-commands`** (string): Additional setup commands or checks to execute before running tests. Can be used to set environment variables: `echo "EXTRA_TEST_ENV_VAR=test" >> $GITHUB_ENV`.
 - **`typecheck`** (boolean): Run typecheck command. Default is `false`.
 - **`working-directory`** (string): Repository working directory where to run pnpm installation and the tests jobs. Default is `.` (the repository root).
+- **`coverage-artifact-name`** (string): Coverage artifact name. Default is `coverage-pnpm-node`. Set a unique value if the workflow is called more than once per run.
 - **`app-directory`** (string): The subdirectory of the application where lint/build/tests are run. Default is **`working-directory`**.
 - **`upload-artifacts`** (boolean): Set to true to upload build artifacts. Default is `false`.
 - **`skip-sonar`** (boolean): Set to true to skip SonarQube checks. Default is `false`.
