@@ -56,6 +56,11 @@ on:
         required: false
         type: string
         default: ''
+      coverage-artifact-name:
+        description: 'Name of the coverage artifact. Set a unique value if this workflow is called more than once per run.'
+        required: false
+        type: string
+        default: 'coverage-node'
     secrets:
       SONAR_TOKEN:
         description: 'SonarQube Cloud token'
@@ -197,14 +202,15 @@ jobs:
       run: yarn test:coverage
       env:
         CI: true
-    # Coverage path logic (keep in sync with sonarcloud job's cache/restore step):
+    # Coverage path logic (keep in sync with sonarcloud job's artifact download step):
     # Resolves the effective directory (app-directory if set, else working-directory),
     # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
-    - name: Store coverage report
-      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - name: Upload coverage report
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
+        name: ${{ inputs.coverage-artifact-name }}
         path: ${{ (inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) && format('{0}/', inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) || ''}}coverage
-        key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        if-no-files-found: error
 
   sonarcloud:
     name: Run SonarQube Cloud Scan
@@ -219,15 +225,14 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: false
-    # Coverage path logic (keep in sync with tests job's cache/save step):
+    # Coverage path logic (keep in sync with tests job's artifact upload step):
     # Resolves the effective directory (app-directory if set, else working-directory),
     # then prefixes 'coverage' with '<dir>/' when running in a subdirectory.
-    - name: Restore coverage report
-      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - name: Download coverage report
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
-        path: ${{ (inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) && format('{0}/', inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory) || ''}}coverage
-        key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-        fail-on-cache-miss: true
+        name: ${{ inputs.coverage-artifact-name }}
+        path: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory || '.' }}/coverage
     # Without this workaround, SonarQube Cloud reports a warning about an incorrect source path
     - name: Override coverage report source path for SonarQube Cloud
       working-directory: ${{ inputs.app-directory == '.' && inputs.working-directory || inputs.app-directory }}

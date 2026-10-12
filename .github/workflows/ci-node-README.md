@@ -43,6 +43,7 @@ To use this reusable workflow, create a project-specific workflow file in your `
 - **`app-directory`** (string): The subdirectory of the application where the tests are run. Default is **`working-directory`**.
 - **`commitlint-config-file`** (string): Path to the commitlint config file. If not set, commitlint uses its default config discovery.
 - **`artifact-name`** (string): Name for the uploaded build artifact. If empty, defaults to `build-artifacts-<node-version>`.
+- **`coverage-artifact-name`** (string): Coverage artifact name. Default is `coverage-node`. Set a unique value if the workflow is called more than once per run.
 
 ### 🔑 Secrets
 
