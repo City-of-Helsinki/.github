@@ -1,3 +1,10 @@
+City-of-Helsinki/profile-gdpr-api-tester:
+  - source: sync/.github/workflows/pypi-publish.yml
+    dest: .github/workflows/publish.yml
+    template:
+      # Repo name and PyPI project name are different
+      pypi_project_name: gdpr-api-tester
+
 group:
   # python libraries
   - repos: |
@@ -19,9 +26,11 @@ group:
       - source: sync/CODEOWNERS-ratkaisutoimiston-backend
         dest: CODEOWNERS
 
-  # python libraries, publish.yml
-  # this is separated from above since trusted publishing
-  # hasn't been configured for every library yet
+  # Python libraries, publish.yml
+  # This is separated from above since trusted publishing
+  # hasn't been configured for every library yet.
+  # If the repo and PyPI project name differ, you need
+  # to add a separate configuration for the repo.
   - repos: |
       City-of-Helsinki/django-helsinki-suomifi-messages
       City-of-Helsinki/django-helsinki-suomifi-on-behalf
@@ -30,10 +39,11 @@ group:
       City-of-Helsinki/django-helusers
       City-of-Helsinki/django-munigeo
       City-of-Helsinki/django-logger-extra
-      City-of-Helsinki/profile-gdpr-api-tester
     files: 
       - source: sync/.github/workflows/pypi-publish.yml
         dest: .github/workflows/publish.yml
+        template:
+          pypi_project_name: ""
 
   # backend, uv
   - repos: |
